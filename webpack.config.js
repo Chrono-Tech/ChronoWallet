@@ -1,6 +1,6 @@
 "use strict";
 
-let debug = process.env.NODE_ENV !== "production";
+let prod = process.env.NODE_ENV === "production";
 let webpack = require('webpack');
 let path = require('path');
 
@@ -24,7 +24,8 @@ module.exports = {
                 exclude: /(node_modules)/,
                 loader: 'babel-loader',
                 query: {
-                    presets: ['es2015', 'react']
+                    presets: ['es2015', 'react'],
+                    plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy'],
                 }
             }
         ]
@@ -33,7 +34,7 @@ module.exports = {
         path: __dirname + "/src/",
         filename: "index.min.js"
     },
-    plugins: debug ? [] : [
+    plugins: !prod ? [] : [
         new webpack.optimize.DedupePlugin(),
         new webpack.optimize.OccurenceOrderPlugin(),
         new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
