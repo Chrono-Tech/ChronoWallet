@@ -1,17 +1,38 @@
-import Promise from "bluebird";
+import Promise from 'bluebird';
+import config from '../config'
 
-web3.eth = Promise.promisifyAll(web3.eth);
+if (typeof web3 !== 'undefined') {
+    web3.eth = Promise.promisifyAll(web3.eth);
+}
 
 export function configure() {
-    let etoken = Promise.promisifyAll(web3.eth.contract(contractABI)
-        .at(contractAddress));
-    let accounts = web3.eth.accounts;
-    console.log("Accounts", accounts);
+    let contract = Promise.promisifyAll(web3.eth.contract(config.contractABI)
+        .at(config.contractAddress));
     return {
         type: 'CONFIGURE',
         payload: {
-            etoken: etoken,
+            contract: contract
+        }
+    }
+}
+
+export function getAccounts(){
+    let accounts = web3.eth.accounts;
+    return {
+        type: 'SET_ACCOUNTS',
+        payload: {
             accounts: accounts
+        }
+    }
+}
+
+export function send(from, to, amount){
+    return {
+        type: 'SEND',
+        payload: {
+            from:from,
+            to:to,
+            value:amount
         }
     }
 }
