@@ -4,7 +4,7 @@ import { Provider } from "react-redux";
 import { Router, Route, browserHistory } from 'react-router';
 
 import store from "./store";
-import Layout from "./components/Layout.jsx";
+import Layout from "./views/Layout";
 
 // Custom css
 require('./css/style.css');

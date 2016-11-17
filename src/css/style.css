@@ -1,0 +1,86 @@
+/*Navbar*/
+
+.container {
+    width: 100% !important;
+    padding: 0 !important;
+}
+
+.navbar {
+    width: 100% !important;
+    padding: 10px !important;
+    background-color: #161240 !important;
+}
+
+/* Logo */
+
+.navbar-brand {
+    font-family: inherit !important;
+    margin:0px 25px 0px 25px !important;
+}
+
+.nav-right {
+    float: right;
+}
+
+.yellow {
+    color: #e2a864;
+    display:inline-block;
+    font-size: 30px;
+}
+
+.blue {
+    color: #4a8fb9;
+    display:inline-block;
+    font-size: 30px;
+}
+
+/* NavBar menu options*/
+
+.nav-option {
+    color: #fff !important;
+    display:inline-block;
+    font-size: 20px;
+    margin-right: 25px;
+}
+
+/* Home menu options */
+
+h2 {
+    color: #17579c !important;
+    font-weight: 700 !important;
+    font-size: 30px !important;
+    margin: 25px;
+    /*font-family: MuseoSans;*/
+}
+
+.send-input{
+    width: 350px;
+    padding: 3px;
+    line-height: 30px !important;
+    border: 2px solid #17579c !important;
+}
+
+.send-label {
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 30px;
+    width: 100px;
+    padding: 3px 7px 3px 7px;
+    margin-left: 15px;
+}
+
+.send-button {
+    width: 450px;
+    margin-left: 15px;
+    margin-top:15px;
+    border: 2px solid #161240 !important;
+    background-color: #161240;
+    color: #ffffff;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 30px;
+}

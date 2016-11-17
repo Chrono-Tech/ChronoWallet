@@ -8,6 +8,9 @@ module.exports = {
     context: path.join(__dirname, "src"),
     devtool: 'cheap-module-source-map',
     entry: './index.js',
+    resolve: {
+        extensions: ['', '.js', '.jsx']
+    },
     module: {
         loaders: [
             {
@@ -16,7 +19,7 @@ module.exports = {
                 loader: 'babel-loader',
                 query: {
                     presets: ['react', 'es2015', 'stage-0'],
-                    plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy'],
+                    plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy', 'syntax-async-functions'],
                 }
             },
             {
@@ -25,9 +28,13 @@ module.exports = {
                 loader: 'babel-loader',
                 query: {
                     presets: ['es2015', 'react'],
-                    plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy'],
+                    plugins: ['react-html-attrs', 'transform-class-properties', 'transform-decorators-legacy', 'syntax-async-functions'],
                 }
-            }
+            },
+            {
+                test: /\.css$/,
+                loaders: ['raw-loader']
+            },
         ]
     },
     output: {
