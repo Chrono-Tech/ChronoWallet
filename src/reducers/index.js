@@ -1,4 +1,4 @@
-import {Map} from 'immutable';
+import {Map, List} from 'immutable';
 
 const init = Map({});
 
@@ -7,11 +7,23 @@ export default function reducer(state = init, action) {
         case 'CONFIGURE': {
             return state.merge(action.payload);
         }
-        case 'SET_BALANCES': {
+        case 'SET_ACCOUNTS': {
+            return state.merge(action.payload);
+        }
+        case 'SET_CURRENT_ACCOUNT': {
+            return state.merge(action.payload);
+        }
+        case 'SET_BALANCE': {
             return state.merge(action.payload);
         }
         case 'SEND': {
-            return state.merge(action.payload);
+            let hashes;
+            if(state.get('txHashes')){
+                hashes = state.get('txHashes');
+            } else {
+                hashes = List();
+            }
+            return state.merge({txHashes: hashes.push(action.payload)});
         }
         default:
             return state

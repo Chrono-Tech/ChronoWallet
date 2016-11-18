@@ -1,3 +1,21 @@
+
+.body-background {
+    background: rgba(220, 220, 220, 1) url('../assets/main-slider-decor-02.png');
+}
+
+.transparent-box {
+    border-radius: 20px;
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.7);
+}
+
+.centered {
+    float: none;
+    display: block;
+    margin: 0 auto;
+}
+
 /*Navbar*/
 
 .container {
@@ -9,6 +27,11 @@
     width: 100% !important;
     padding: 10px !important;
     background-color: #161240 !important;
+    margin-bottom: 0 !important;
+}
+
+.nav-right {
+    float: right;
 }
 
 /* Logo */
@@ -16,10 +39,6 @@
 .navbar-brand {
     font-family: inherit !important;
     margin:0px 25px 0px 25px !important;
-}
-
-.nav-right {
-    float: right;
 }
 
 .yellow {
@@ -45,11 +64,73 @@
 
 /* Home menu options */
 
+h1 {
+    color: #e2a864 !important;
+    font-weight: 700 !important;
+    font-size: 40px !important;
+    padding:0;
+    margin: 25px 40px 25px 40px !important;
+    text-shadow:
+            -2px 2px 0 #fff,
+            2px -2px 0 #fff,
+            -2px 2px 0 #fff,
+            2px 2px 0 #fff;
+}
+
+.yellow-big {
+    color: #e2a864;
+    display:inline-block;
+    font-weight: 700 !important;
+    font-size: 70px !important;
+    padding:0;
+    margin: 25px 0 25px 0 !important;
+    text-shadow:
+            -2px 2px 0 #fff,
+            2px -2px 0 #fff,
+            -2px 2px 0 #fff,
+            2px 2px 0 #fff;
+}
+
+.blue-big {
+    color: #4a8fb9;
+    display:inline-block;
+    font-weight: 700 !important;
+    font-size: 70px !important;
+    padding:0;
+    margin: 25px 0 25px 0 !important;
+    text-shadow:
+            -2px 2px 0 #fff,
+            2px -2px 0 #fff,
+            -2px 2px 0 #fff,
+            2px 2px 0 #fff;
+}
+
 h2 {
-    color: #17579c !important;
+    color: #e2a864 !important;
     font-weight: 700 !important;
     font-size: 30px !important;
-    margin: 25px;
+    padding:0;
+    margin: 10px 25px 10px 25px !important;
+    text-shadow:
+            -1px 1px 0 #fff,
+            1px -1px 0 #fff,
+            -1px 1px 0 #fff,
+            1px 1px 0 #fff;
+    /*font-family: MuseoSans;*/
+}
+
+h3 {
+    color: #e2a864 !important;
+    font-weight: 700 !important;
+    font-size: 20px !important;
+    padding:0;
+    display:inline-block;
+    margin: 5px 0 5px 25px !important;
+    text-shadow:
+            -1px 1px 0 #fff,
+            1px -1px 0 #fff,
+            -1px 1px 0 #fff,
+            1px 1px 0 #fff;
     /*font-family: MuseoSans;*/
 }
 
@@ -58,6 +139,7 @@ h2 {
     padding: 3px;
     line-height: 30px !important;
     border: 2px solid #17579c !important;
+    margin-top:0px;
 }
 
 .send-label {
@@ -71,6 +153,7 @@ h2 {
     width: 100px;
     padding: 3px 7px 3px 7px;
     margin-left: 15px;
+    margin-top:10px;
 }
 
 .send-button {
@@ -83,4 +166,89 @@ h2 {
     font-size: 20px;
     font-weight: 700;
     line-height: 30px;
+}
+
+.dropdown-label {
+    border: 2px solid #17579c !important;
+    background-color: #fff;
+    width: 350px;
+    padding: 3px;
+    line-height: 30px !important;
+    display: inline-block;
+    margin-left: 15px;
+    margin-top:10px;
+}
+
+.dropdown-button {
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    line-height: 30px;
+    display: inline-block;
+    padding:3px;
+}
+
+.dropdown-symbol {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-block;
+    margin:0px;
+}
+
+.balance-container{
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    line-height: 30px;
+    display: inline-block;
+    padding:3px;
+    margin: 0 25px 0 25px;
+    width: 100px;
+}
+
+.balance-value {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-block;
+    margin:0px;
+}
+
+.balance-pending {
+    color: #e2a864;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-block;
+    margin:0px;
+}
+
+.balance-currency {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 300;
+    display: inline-block;
+    margin:0px;
+}
+
+.hash-container{
+    border: 2px solid #17579c !important;
+    background-color: #fff;
+    width: 450px;
+    padding: 5px;
+    line-height: 30px !important;
+    display: inline-block;
+    margin: 20px;
+}
+
+.hash {
+    color:#161240;
+    padding:0;
+    font-size: 12px;
+    font-weight: 300;
+    margin:0 5px 0 5px;
+}
+
+.hash-separator {
+    border: 1px solid #e2a864;
+    padding:0;
+    margin: 2px 10px 2px 10px;
 }

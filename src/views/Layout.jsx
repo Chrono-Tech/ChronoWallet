@@ -1,15 +1,17 @@
 import React from "react";
 import {connect} from "react-redux";
-import {configure, getAccounts, send} from "../actions";
+import {configure, getAccounts, getBalance, send} from "../actions";
 import store from "../store";
 import NavBar from "../components/NavBar";
 
 
 @connect((store) => {
     return {
-        balances: store.get('balances'),
-        txHash: store.get('txHash'),
-        contract: store.get('contract')
+        balance: store.get('balance'),
+        txHashes: store.get('txHashes'),
+        contract: store.get('contract'),
+        accounts: store.get('accounts'),
+        currentAccount: store.get('currentAccount')
     };
 })
 export default class Layout extends React.Component {
@@ -17,13 +19,13 @@ export default class Layout extends React.Component {
     constructor() {
         super();
         this.state = {
-            sender: '0x710e2f9d630516d3afdd053de584f1fa421e84bc',
-            recipient: '0x499388416d3cac5f056cb8d358d5be100271cc51',
-            amount: '10',
+            recipient: '',
+            amount: '',
             status: '',
-            intervalID: ''
+            intervalID: '',
         };
-        this.showBalance = this.showBalance.bind(this);
+        this.showDropdown = this.showDropdown.bind(this);
+        this.generateHashes = this.generateHashes.bind(this);
         this.setBalanceUpdater = this.setBalanceUpdater.bind(this);
         this.send = this.send.bind(this);
     }
@@ -31,39 +33,48 @@ export default class Layout extends React.Component {
     componentWillMount() {
         if (typeof web3 !== 'undefined') {
             store.dispatch(configure());
+            let unsubscribe = store.subscribe(() => {
+                    if (store.getState().get('accounts')) {
+                        getBalance();
+                        this.setBalanceUpdater();
+                        unsubscribe();
+                    }
+                }
+            );
             getAccounts();
-            this.setBalanceUpdater();
-        }
 
+        }
     }
 
     setBalanceUpdater() {
-        this.setState({intervalID: setInterval(() => getAccounts(), 15000)});
+        this.setState({intervalID: setInterval(() => getBalance(), 15000)});
     }
 
     componentWillUnmount() {
         clearInterval(this.state.intervalID);
+        // unsubscribe();
     }
 
     send() {
         this.setState({status: 'Clicked!'});
-        send(this.state.sender, this.state.recipient, this.state.amount);
+        send(this.state.recipient, this.state.amount);
     }
 
-    showBalance() {
+    showDropdown() {
         if (this.props.balances && this.props.balances.size > 0) {
             let balanceInfo = [];
             this.props.balances.forEach(entry => {
                 balanceInfo.push(
                     <div key={entry.get('account')} className="row">
-                        <div className="col-md-6">
-                            <h6>{entry.get('account')}</h6>
-                        </div>
-                        <div className="col-md-3">
-                            <p>{entry.get('balances').get('LHAU')} </p>
-                        </div>
-                        <div className="col-md-3">
-                            <p>{entry.get('balances').get('LHAUpending')} </p>
+                        <p className="balance-label">{entry.get('account')}</p>
+                        <div className="balance-container">
+                            <p className="balance-value">{entry.get('balances').get('LHAU')}&nbsp;</p>
+                            {entry.get('balances').get('EZCpending') !== '0' ?
+                                <p className="balance-pending">{entry.get('balances').get('LHAUpending')}&nbsp;</p>
+                                :
+                                null
+                            }
+                            <p className="balance-currency">LHAU</p>
                         </div>
                     </div>
                 )
@@ -74,57 +85,100 @@ export default class Layout extends React.Component {
         }
     }
 
+    generateHashes() {
+        if (this.props.txHashes) {
+            let niceHashes = [];
+            this.props.txHashes.forEach(hash => niceHashes.push(
+                <div>
+                    <p className="hash">{hash}</p>
+                    <div className="hash-separator"/>
+                </div>
+            ));
+            return niceHashes;
+        }
+    }
+
     render() {
-        let info = this.showBalance();
+        let hashes = this.generateHashes();
         if (typeof web3 == 'undefined') {
-            return (<div className="container">
-                <h1>Oh no! This browser doesn't support Web3. Use something like Mist.</h1>
+            return (<div className="container transparent-box text-center vertical-align">
+                <p className="blue-big">Chrono</p>
+                <p className="yellow-big">Wallet</p>
+                <h1>This browser doesn't support Web3. Use browser like Mist or install
+                    Metamask.</h1>
             </div>);
         } else {
             return (<div className="container">
                 <NavBar/>
 
                 <div className="col-md-6">
-                    <div className="row">
-                        <h2>Send</h2>
-                    </div>
-                    <div className="row">
-                        <h6 className="send-label">Sender</h6>
-                        <input className="send-input" type="text" value={this.state.sender}
-                               placeholder="Sender"
-                               onChange={input => this.setState({sender: input.target.value})}
-                        />
-                    </div>
-                    <div className="row">
-                        <h6 className="send-label">Recipient</h6>
-                        <input className="send-input"
-                               type="text" value={this.state.recipient}
-                               placeholder="Recipient"
-                               onChange={input => this.setState({recipient: input.target.value})}
-                        />
-                    </div>
-                    <div className="row">
+                    <div className="transparent-box">
+                        <div className="row">
+                            <h2>Send</h2>
+                        </div>
 
-                        <h6 className="send-label">Amount</h6>
-                        <input className="send-input" type="number" value={this.state.amount}
-                               placeholder="0.0"
-                               onChange={input => this.setState({amount: input.target.value})}
-                        />
+                        <div className="row">
+                            <h6 className="send-label">Recipient</h6>
+                            <input className="send-input"
+                                   type="text" value={this.state.recipient}
+                                   placeholder="Recipient"
+                                   onChange={input => this.setState({recipient: input.target.value})}
+                            />
+                        </div>
+
+                        <div className="row">
+                            <h6 className="send-label">Amount</h6>
+                            <input className="send-input" type="text"
+                                   value={this.state.amount}
+                                   placeholder="0.0"
+                                   onChange={input => this.setState({amount: input.target.value})}
+                            />
+                        </div>
+
+                        <div className="row">
+                            <button className="send-button" onClick={this.send}>Send</button>
+                        </div>
                     </div>
-                    <div className="row">
-                        <button className="send-button" onClick={this.send}>Send</button>
-                    </div>
-                    <div className="row">
-                        <h6>{this.props.txHash}</h6>
-                    </div>
+
+
+                    {this.props.txHashes ?
+                        <div className="transparent-box">
+                            <div className="row">
+                                <h2>Transaction Hashes</h2>
+                            </div>
+
+                            <div className="row">
+                                <div className="hash-container">
+                                    {hashes}
+                                </div>
+                            </div>
+                        </div>
+                        :
+                        null
+                    }
                 </div>
+
+
                 <div className="col-md-6">
-                    <div className="row">
-                        <h2>Balances</h2>
-                    </div>
-                    <div className="row">
-                        <div className="col-md-12">
-                            {info}
+                    <div className=" transparent-box">
+                        <div className="row">
+                            <h2>Balances</h2>
+                        </div>
+                        <div className="row">
+                            <h3>for</h3>
+                            <p className="dropdown-label">{this.props.currentAccount}</p>
+                            <div className="dropdown-button">
+                                <div className="dropdown-symbol">
+                                    <i class="fa fa-arrow-down" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="row">
+                            <div className="balance-container">
+                                <p className="balance-value">{this.props.balance}&nbsp;</p>
+                                <p className="balance-currency">LHAU</p>
+                            </div>
                         </div>
                     </div>
                 </div>

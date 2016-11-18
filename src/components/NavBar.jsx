@@ -4,7 +4,6 @@ import React from "react";
 export default class NavBar extends React.Component {
 
     render() {
-        console.log("ALLAH NAVBAR");
         return (
             <nav role="navigation" class="navbar navbar-default navbar-static-top">
                 <div class="container">
