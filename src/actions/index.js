@@ -49,10 +49,12 @@ export function getBalance() {
     return Promise.all([contract.balanceOfAsync(account),
         contract.balanceOfAsync(account, 'pending')])
         .then(coins => Map({
-            LHAU: contract.balanceOf(account,'LHAU'),
-            LHUS: contract.balanceOf(account,'LHUS'),
-            LHGB: contract.balanceOf(account,'LHGB'),
-            LHEU: contract.balanceOf(account,'LHEU')
+            EZC: coins[0].toString(),
+            EZCpending: coins[1].minus(coins[0]).toString()
+            // LHAU: contract.balanceOf(account,'LHAU'),
+            // LHUS: contract.balanceOf(account,'LHUS'),
+            // LHGB: contract.balanceOf(account,'LHGB'),
+            // LHEU: contract.balanceOf(account,'LHEU')
         })).then((balance) => {
             store.dispatch({
                 type: 'SET_BALANCE',
