@@ -1,21 +1,21 @@
 import Promise from 'bluebird';
 import config from '../config';
 import store from'../store';
-import {Map} from 'immutable';
+import {Map, List} from 'immutable';
 
 export function configure() {
-    let contract = Promise.promisifyAll(web3.eth.contract(config.contractABI)
-        .at(config.contractAddress));
+    let contracts = config.contractAddresses.map(address => {
+        return Promise.promisifyAll((web3.eth.contract(config.contractABI)).at(address));
+    });
     return {
         type: 'CONFIGURE',
         payload: {
-            contract: contract
+            contracts: contracts
         }
     }
 }
 
 export function getAccounts() {
-    let contract = store.getState().get('contract');
     Promise.all(web3.eth.accounts).then((accounts) => {
         web3.eth.defaultAccount = accounts[1];
         store.dispatch({
@@ -33,7 +33,7 @@ export function getAccounts() {
     });
 }
 
-export function setCurrentAccount(address){
+export function setCurrentAccount(address) {
     web3.eth.defaultAccount = address;
     store.dispatch({
         type: 'SET_CURRENT_ACCOUNT',
@@ -43,35 +43,37 @@ export function setCurrentAccount(address){
     });
 }
 
-export function getBalance() {
-    let contract = store.getState().get('contract');
+export function getBalances() {
+    let contracts = store.getState().get('contracts');
     let account = web3.eth.defaultAccount;
-    return Promise.all([contract.balanceOfAsync(account),
-        contract.balanceOfAsync(account, 'pending')])
-        .then(coins => Map({
-            EZC: coins[0].toString(),
-            EZCpending: coins[1].minus(coins[0]).toString()
-            // LHAU: contract.balanceOf(account,'LHAU'),
-            // LHUS: contract.balanceOf(account,'LHUS'),
-            // LHGB: contract.balanceOf(account,'LHGB'),
-            // LHEU: contract.balanceOf(account,'LHEU')
-        })).then((balance) => {
-            store.dispatch({
-                type: 'SET_BALANCE',
-                payload: {
-                    balance: balance
-                }
-            });
+    return Promise.map(contracts, (contract) => {
+        return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account), contract.balanceOfAsync(account, 'pending')])
+            .then(([symbol, balance, pending]) => Map({
+                symbol: web3.toAscii(symbol),
+                balance: balance.toString(),
+                pending: pending.minus(balance).toString()
+            }))
+    }).then(entries => {
+        let balances = [];
+        entries.forEach(entry => balances.push(entry));
+        store.dispatch({
+            type: 'SET_BALANCES',
+            payload: {
+                balances: List(balances)
+            }
         });
+    });
 }
 
-export function send(to, amount) {
-    let contract = store.getState().get('contract');
+export function send(to, amount, symbol) {
+    let contracts = store.getState().get('contracts');
+
+
     contract.transferAsync(to, amount).then(hash => {
         store.dispatch({
             type: 'SEND',
             payload: hash
         });
-        getBalance();
+        getBalances();
     });
 }

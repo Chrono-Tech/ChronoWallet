@@ -6,7 +6,7 @@
 .transparent-box {
     border-radius: 20px;
     margin-top: 15px;
-    padding: 10px;
+    padding: 15px;
     background: #fff;
 }
 
@@ -117,10 +117,10 @@ h2 {
 h3 {
     color: #e2a864 !important;
     font-weight: 700 !important;
-    font-size: 20px !important;
+    font-size: 15px !important;
     padding: 0;
     display: inline-block;
-    margin: 5px 0 5px 25px !important;
+    margin: 5px 0 5px 20px !important;
     text-shadow: -1px 1px 0 #fff,
     1px -1px 0 #fff,
     -1px 1px 0 #fff,
@@ -200,22 +200,13 @@ h3 {
     line-height: 30px;
 }
 
-.send-amount-label-alias {
-    color: #17579c;
-    display: inline-block;
-    font-size: 17px;
-    line-height: 30px;
-    padding: 3px 7px 3px 7px;
-    margin-left: 120px;
-}
-
 .send-amount-alias {
     color: #17579c;
     display: inline-block;
     font-size: 17px;
     font-weight: 700;
     line-height: 30px;
-    padding: 0 10px 0 10px;
+    margin-left: 120px;
 }
 
 .send-fee-label {
@@ -276,7 +267,7 @@ h3 {
     border: 2px solid #e2a864;
     background-color: #fff;
     padding: 0 10px 0 10px;
-    margin: 10px 25px 10px 25px;
+    margin: 10px 25px 0 15px;
 }
 
 .balance-horizontal-separator {

@@ -1,15 +1,14 @@
 import React from "react";
 import {connect} from "react-redux";
-import {configure, getAccounts, getBalance, send} from "../actions";
+import {configure, getAccounts, getBalances, send} from "../actions";
 import store from "../store";
 import NavBar from "../components/NavBar";
 
 
 @connect((store) => {
     return {
-        balance: store.get('balance'),
+        balances: store.get('balances'),
         txHashes: store.get('txHashes'),
-        contract: store.get('contract'),
         accounts: store.get('accounts'),
         currentAccount: store.get('currentAccount')
     };
@@ -21,8 +20,8 @@ export default class Layout extends React.Component {
         this.state = {
             recipient: '',
             recipientInputError: '',
-            currency: 'LHAU',
-            currencyAlias: 'AUD',
+            currency: '',
+            currencyAlias: 'alias',
             amount: '',
             amountAlias: 0,
             fee: 0,
@@ -45,8 +44,14 @@ export default class Layout extends React.Component {
             store.dispatch(configure());
             let unsubscribe = store.subscribe(() => {
                     if (store.getState().get('accounts')) {
-                        getBalance();
+                        getBalances();
                         this.setBalanceUpdater();
+                    }
+                    let balances = store.getState().get('balances');
+                    if (balances) {
+                        if(balances.size > 0){
+                            this.setState({currency: balances.get(0).get('symbol')});
+                        }
                         unsubscribe();
                     }
                 }
@@ -57,7 +62,7 @@ export default class Layout extends React.Component {
     }
 
     setBalanceUpdater() {
-        this.setState({intervalID: setInterval(() => getBalance(), 15000)});
+        this.setState({intervalID: setInterval(() => getBalances(), 15000)});
     }
 
     componentWillUnmount() {
@@ -77,14 +82,25 @@ export default class Layout extends React.Component {
 
     amountHandler(text) {
         let integer = parseInt(text, 10);
+        let balance = this.props.balances ?
+            parseInt(this.props.balances
+                .find(balance => balance.get('symbol') === this.state.currency)
+                .get('balance'), 10)
+            : null;
         if (text !== '' && isNaN(text)) {
             this.setState({amount: text, amountInputError: 'Not a number.'});
-        } else if (this.props.balance && integer > parseInt(this.props.balance.get('LHAU'), 10)) {
+        } else if (this.props.balances && integer > balance) {
             this.setState({amount: text, amountInputError: 'Not enough tokens on your balance.'});
         } else if (text.startsWith("-")) {
             this.setState({amount: text, amountInputError: 'Has to be positive number.'});
         } else {
-            this.setState({amount: text, amountAlias: integer * 13.17 , amountInputError: '', fee:integer * 0.01, feeAlias:integer * 1.317});
+            this.setState({
+                amount: text,
+                amountAlias: integer * 13.17,
+                amountInputError: '',
+                fee: integer * 0.01,
+                feeAlias: integer * 1.317
+            });
         }
     }
 
@@ -113,28 +129,6 @@ export default class Layout extends React.Component {
     }
 
     showDropdown() {
-        if (this.props.balances && this.props.balances.size > 0) {
-            let balanceInfo = [];
-            this.props.balances.forEach(entry => {
-                balanceInfo.push(
-                    <div key={entry.get('account')} className="row">
-                        <p className="balance-label">{entry.get('account')}</p>
-                        <div className="balance-container">
-                            <p className="balance-value">{entry.get('balances').get('LHAU')}&nbsp;</p>
-                            {entry.get('balances').get('LHAUpending') !== '0' ?
-                                <p className="balance-pending">{entry.get('balances').get('LHAUpending')}&nbsp;</p>
-                                :
-                                null
-                            }
-                            <p className="balance-currency">LHAU</p>
-                        </div>
-                    </div>
-                )
-            });
-            return balanceInfo;
-        } else {
-            return <h6>There is no address connected.</h6>
-        }
     }
 
     generateHashes() {
@@ -152,54 +146,29 @@ export default class Layout extends React.Component {
     }
 
     showBalances() {
-        if (this.props.balance) {
-            let pendingBalance = this.props.balance.get('LHAUpending');
-            return (<div className="balance-container">
-
-                <p className="balance-value">{this.props.balance.get('LHAU')}&nbsp;</p>
-                {pendingBalance === '0' ? null :
-                    <p className="balance-pending">{pendingBalance}&nbsp;</p>
-                }
-                <p className="balance-currency">LHAU</p>
-                <div className="balance-vertical-separator"/>
-                <p className="balance-value">{77.33}&nbsp;</p>
-                <p className="balance-currency">AUD</p>
-
-                <div className="balance-horizontal-separator"/>
-
-                <p className="balance-value">{this.props.balance.get('LHAU')}&nbsp;</p>
-                {pendingBalance === '0' ? null :
-                    <p className="balance-pending">{pendingBalance}&nbsp;</p>
-                }
-                <p className="balance-currency">LHUS</p>
-                <div className="balance-vertical-separator"/>
-                <p className="balance-value">{20.16}&nbsp;</p>
-                <p className="balance-currency">USD</p>
-
-                <div className="balance-horizontal-separator"/>
-
-                <p className="balance-value">{123.321}&nbsp;</p>
-                <p className="balance-pending">{'+1'}&nbsp;</p>
-                <p className="balance-currency">LHGB</p>
-                <div className="balance-vertical-separator"/>
-                <p className="balance-value">{10.17}&nbsp;</p>
-                <p className="balance-currency">GBP</p>
-
-                <div className="balance-horizontal-separator"/>
-
-
-                <p className="balance-value">{1234564444478.87654321}&nbsp;</p>
-                <p className="balance-pending">{'+1.56666678'}&nbsp;</p>
-                <p className="balance-currency">LHEU</p>
-                <div className="balance-vertical-separator"/>
-                <p className="balance-value">{300.22}&nbsp;</p>
-                <p className="balance-currency">EU</p>
-            </div>);
+        if (this.props.balances && this.props.balances.size > 0) {
+            let balanceInfo = [];
+            this.props.balances.toArray().forEach((entry, index) => {
+                balanceInfo.push(
+                    <div key={entry.get('symbol')}>
+                        <p className="balance-value">{entry.get('balance')}&nbsp;</p>
+                        {entry.get('pending') === '0' ? null :
+                            <p className="balance-pending">{entry.get('pending')}&nbsp;</p>
+                        }
+                        <p className="balance-currency">{entry.get('symbol')}</p>
+                        <div className="balance-vertical-separator"/>
+                        <p className="balance-value">alias-balance&nbsp;</p>
+                        <p className="balance-currency">alias-currency</p>
+                        {(index + 1) === this.props.balances.size ? null :
+                            <div className="balance-horizontal-separator"/> }
+                    </div>
+                )
+            });
+            return balanceInfo;
         }
     }
 
     render() {
-        console.log("Balance", this.props.balance);
         let hashes = this.generateHashes();
         let balances = this.showBalances();
 
@@ -264,15 +233,16 @@ export default class Layout extends React.Component {
                         </div>
 
                         <div className="row">
-                            <p className="send-amount-label-alias">is equal to</p>
-                            <p className="send-amount-alias">{this.state.amountAlias} {this.state.currencyAlias}</p>
+                            <p className="send-amount-alias">
+                                ≈ {this.state.amountAlias} {this.state.currencyAlias}</p>
                         </div>
 
                         <div className="row">
                             <span>
                                 <p className="send-fee-label">Fee:</p>
                                 <p className="send-fee-amount">{this.state.fee}</p>
-                                <p className="send-fee-text">{this.state.currency} ({this.state.feeAlias} {this.state.currencyAlias})</p>
+                                <p className="send-fee-text">{this.state.currency}&nbsp;
+                                    ≈ {this.state.feeAlias} {this.state.currencyAlias}</p>
                             </span>
                         </div>
 
@@ -301,7 +271,7 @@ export default class Layout extends React.Component {
 
 
                 <div className="col-md-6">
-                    <div className=" transparent-box">
+                    <div className="transparent-box">
                         <div className="row">
                             <h2>Balances</h2>
                         </div>
@@ -316,7 +286,9 @@ export default class Layout extends React.Component {
                         </div>
 
                         <div className="row">
-                            {balances}
+                            <div className="balance-container">
+                                {balances}
+                            </div>
                         </div>
                     </div>
                 </div>

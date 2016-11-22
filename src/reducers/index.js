@@ -13,7 +13,7 @@ export default function reducer(state = init, action) {
         case 'SET_CURRENT_ACCOUNT': {
             return state.merge(action.payload);
         }
-        case 'SET_BALANCE': {
+        case 'SET_BALANCES': {
             return state.merge(action.payload);
         }
         case 'SEND': {
