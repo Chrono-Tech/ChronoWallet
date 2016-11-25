@@ -1,8 +1,8 @@
 import React from "react";
+import {Link, withRouter} from 'react-router';
 
 
-export default class NavBar extends React.Component {
-
+class NavBar extends React.Component {
     render() {
         return (
             <nav role="navigation" class="navbar navbar-default navbar-static-top">
@@ -23,9 +23,10 @@ export default class NavBar extends React.Component {
                     <div id="navbarCollapse" class="collapse navbar-collapse">
                         <div className="nav-right">
                             <ul class="nav navbar-nav">
-                                <li><a className="nav-option" href="#">Exchange</a></li>
-                                <li><a className="nav-option" href="#">Voting</a></li>
-                                <li><a className="nav-option" href="#">Redemption</a></li>
+                                <li><Link className="nav-option" to="/">Home</Link></li>
+                                <li><Link className="nav-option" to="developing">Exchange</Link></li>
+                                <li><Link className="nav-option" to="developing">Voting</Link></li>
+                                <li><Link className="nav-option" to="developing">Redemption</Link></li>
                             </ul>
                         </div>
                     </div>
@@ -34,3 +35,5 @@ export default class NavBar extends React.Component {
         );
     }
 }
+
+export default withRouter(NavBar);

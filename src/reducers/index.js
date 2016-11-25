@@ -14,11 +14,11 @@ export default function reducer(state = init, action) {
             return state.merge(action.payload);
         }
         case 'SET_BALANCES': {
-            return state.merge(action.payload);
+            return state.merge({balances: action.payload});
         }
         case 'SEND': {
             let hashes;
-            if(state.get('txHashes')){
+            if (state.get('txHashes')) {
                 hashes = state.get('txHashes');
             } else {
                 hashes = List();
