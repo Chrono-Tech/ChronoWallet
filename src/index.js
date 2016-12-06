@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
-import { Router, Route, hashHistory, IndexRoute } from 'react-router';
+import {Provider} from "react-redux";
+import {Router, Route, hashHistory, IndexRoute} from 'react-router';
 
 import store from "./store";
 import Layout from "./views/Layout";
@@ -13,11 +13,12 @@ require('./css/style.css');
 
 const app = document.getElementById('app');
 
-ReactDOM.render(<Provider store={store}>
-    <Router history={hashHistory}>
-        <Route path="/" component={Layout}>
-            <IndexRoute component={Dashboard}></IndexRoute>
-            <Route path="developing" name="Developing" component={Developing}></Route>
-        </Route>
-    </Router>
-</Provider>, app);
+ReactDOM.render(
+    <Provider store={store}>
+        <Router history={hashHistory}>
+            <Route path="/" component={Layout}>
+                <IndexRoute component={Dashboard}></IndexRoute>
+                <Route path="developing" name="Developing" component={Developing}></Route>
+            </Route>
+        </Router>
+    </Provider>, app);

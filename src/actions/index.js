@@ -17,14 +17,13 @@ export function configure() {
 
 export function getAccounts() {
     Promise.all(web3.eth.accounts).then((accounts) => {
-        web3.eth.defaultAccount = accounts[1];
         store.dispatch({
             type: 'SET_ACCOUNTS',
             payload: {
                 accounts: accounts
             }
         });
-        setCurrentAccount(accounts[1]);
+        setCurrentAccount(accounts[0]);
     });
 }
 
@@ -41,7 +40,7 @@ export function setCurrentAccount(address) {
 
 export function getBalances() {
     let contracts = store.getState().get('contracts');
-    let account = web3.eth.defaultAccount;
+    let account = store.getState().get('currentAccount');
     return Promise.map(contracts, (contract) => {
         return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account), contract.balanceOfAsync(account, 'pending')])
             .then(([symbol, balance, pending]) => Map({
