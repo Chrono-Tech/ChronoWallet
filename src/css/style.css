@@ -10,6 +10,13 @@
     background: #fff;
 }
 
+.big-box {
+    border-radius: 20px;
+    margin: 25px;
+    padding: 15px;
+    background: #fff;
+}
+
 .centered {
     float: none;
     display: block;
@@ -213,33 +220,34 @@ h3 {
     color: #17579c;
     display: inline-block;
     font-size: 15px;
-    line-height: 30px;
     padding: 3px 7px 3px 7px;
-    margin-left: 70px;
-    margin-top: 10px;
+    margin: 1px 0 0 75px;
+    text-align: right;
+    width: 50px;
 
 }
 
 .send-fee-amount {
     display: inline-block;
     font-size: 15px;
-    line-height: 30px;
     font-weight: 700;
     color: #17579c;
-    margin: 5px;
+    margin: 0 3px 0 3px;
+    padding: 0;
 }
 
 .send-fee-text {
     display: inline-block;
     font-size: 15px;
-    line-height: 30px;
     color: #17579c;
+    margin: 3px;
+    padding: 0;
 }
 
 .dropdown-label {
     border: 2px solid #17579c !important;
     background-color: #fff;
-    width: 350px;
+    width: 330px;
     padding: 3px;
     line-height: 30px !important;
     display: inline-block;
@@ -368,12 +376,10 @@ h3 {
 }
 
 .hash-container {
-    border: 2px solid #17579c !important;
+    border: 2px solid #17579c;
     background-color: #fff;
-    width: 450px;
     padding: 5px;
     line-height: 30px !important;
-    display: inline-block;
     margin: 20px;
 }
 

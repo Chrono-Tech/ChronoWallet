@@ -1,6 +1,7 @@
 import React, {PropTypes, Component} from "react";
 import {send} from "../actions";
 import {List} from "immutable";
+import BigNumber from "bignumber.js";
 
 export default class Send extends Component {
 
@@ -8,12 +9,20 @@ export default class Send extends Component {
         super();
         this.state = {
             showDropdownCurrency: false,
-            recipientInputError:'',
-            amountInputError:'',
-            amount:'0',
-            amountAlias:'0',
-            currency:'',
-            currencyAlias:'ALS'
+            recipientInputError: '',
+            amountInputError: '',
+            amount: '',
+            amountAlias: '0',
+            currency: '',
+            currencies: '',
+            currencyAlias: '',
+            currenciesAlias: '',
+            fee: 0,
+            feeRate: 0,
+            feeAlias: 0,
+            aliasRate: 0,
+            total: 0,
+            totalAlias: 0
         };
         this.recipientHandler = this.recipientHandler.bind(this);
         this.amountHandler = this.amountHandler.bind(this);
@@ -23,7 +32,7 @@ export default class Send extends Component {
         this.pickCurrency = this.pickCurrency.bind(this);
     }
 
-    componentWillMount(){
+    componentWillMount() {
         this.pickCurrency(this.props.balances.get(0).get('symbol'), this.props.balances);
     }
 
@@ -45,7 +54,6 @@ export default class Send extends Component {
     }
 
     amountHandler(text) {
-        let integer = parseFloat(text, 10);
         let balance = this.props.balances ?
             this.props.balances.find(balance => balance.get('symbol') === this.state.currency)
                 .get('balance')
@@ -53,22 +61,45 @@ export default class Send extends Component {
 
         if (text !== '' && isNaN(text)) {
             this.setState({amount: text, amountInputError: 'Not a number.'});
-        } else if (this.props.balances && integer > balance) {
+        } else if (this.props.balances && parseFloat(text) > balance) {
             this.setState({amount: text, amountInputError: 'Not enough tokens on your balance.'});
-        } else if (!/^\d*[\.]?\d{0,8}$/.test(text)) {
+        } else if (!/^\d*[\.]?\d{0,8}$/.test(text.replace(/\.?0+$/, ""))) {
             this.setState({
                 amount: text,
                 amountInputError: 'You can\'t send amount having more than 8 decimal places'
             });
-        } else if (text.startsWith("-")) {
+        } else if (text.startsWith('-')) {
             this.setState({amount: text, amountInputError: 'Has to be positive number.'});
-        } else {
+        } else if (text === '') {
             this.setState({
                 amount: text,
-                amountAlias: integer * 13,
                 amountInputError: '',
-                fee: integer * 0.1,
-                feeAlias: integer * 1.3
+                amountAlias: 0,
+                fee: 0,
+                feeAlias: 0,
+                total: 0,
+                totalAlias: 0
+            });
+        } else {
+            let integer = new BigNumber(text);
+            let aliasRate = new BigNumber(this.state.aliasRate);
+            let amountAlias = integer.times(aliasRate).round(2);
+            let fee = integer.times(new BigNumber(this.state.feeRate)).round(8);
+            if (integer.lessThan('0.000004')) {
+                //Sets fee for extra-small numbers
+                fee = new BigNumber('0.00000001');
+            }
+            let feeAlias = fee.times(aliasRate).round(2);
+            let total = integer.plus(fee).round(8);
+            let totalAlias = total.times(aliasRate).round(2);
+            this.setState({
+                amountInputError: '',
+                amount: text,
+                amountAlias: amountAlias.toString(),
+                fee: fee.toFixed(8).replace(/\.?0+$/, ""),
+                feeAlias: feeAlias.toFixed(2).replace(/\.?0+$/, ""),
+                total: total.toFixed(8).replace(/\.?0+$/, ""),
+                totalAlias: totalAlias.toFixed(2).replace(/\.?0+$/, "")
             });
         }
     }
@@ -81,7 +112,6 @@ export default class Send extends Component {
             this.setState({amountInputError: 'This field is required to make send.'});
             return;
         }
-
 
         if (this.state.recipient.length !== 40 && this.state.recipient.length !== 42) {
             this.setState({recipientInputError: 'Address has to be 40 symbols long not including \'0x\' or 42 including \'0x\'.'});
@@ -108,20 +138,30 @@ export default class Send extends Component {
     }
 
     pickCurrency(currency, balances) {
-        if (balances) {
-            let currencies = [];
-            balances.forEach((balance) => {
-                if (balance.get('symbol') === currency) {
-                    return;
-                }
-                currencies.push(balance.get('symbol'));
-            });
-            this.setState({
-                currency: currency,
-                currencies: currencies,
-                showDropdownCurrency: false,
-            });
-        }
+        let currencies = [];
+        let currencyAlias = '';
+        let currenciesAlias = [];
+        let aliasRate = 1;
+        let fee = 0;
+        balances.forEach((balance) => {
+            if (balance.get('symbol') === currency) {
+                currencyAlias = balance.get('fiatSymbol');
+                aliasRate = balance.get('fiatRate');
+                fee = balance.get('fee');
+                return;
+            }
+            currencies.push(balance.get('symbol'));
+            currenciesAlias.push(balance.get('fiatSymbol'));
+        });
+        this.setState({
+            currency: currency,
+            currencies: currencies,
+            showDropdownCurrency: false,
+            currenciesAlias: currenciesAlias,
+            currencyAlias: currencyAlias,
+            aliasRate: aliasRate,
+            feeRate: fee
+        });
     }
 
     render() {
@@ -158,21 +198,20 @@ export default class Send extends Component {
                            onChange={input => this.amountHandler(input.target.value)}
                     />
                     <span style={{"position": "relative"}}>
-                                <p className="send-input-currency-label">{this.state.currency}</p>
-                                <button className="dropdown-button"
-                                        onClick={() => this.revertShowCurrency()}>
-                                    <div className="dropdown-symbol">
-                                        <i class="fa fa-arrow-down" aria-hidden="true"/>
-                                    </div>
-                                </button>
+                        <p className="send-input-currency-label">{this.state.currency}</p>
+                        <button className="dropdown-button"
+                                onClick={() => this.revertShowCurrency()}>
+                            <div className="dropdown-symbol">
+                                <i class="fa fa-arrow-down" aria-hidden="true"/>
+                            </div>
+                        </button>
                         {this.state.showDropdownCurrency ? currencyChoices : null}
-                            </span>
+                    </span>
                     {this.state.amountInputError.length === 0 ? null :
                         <span className="send-input-error-sign">
-                                    <i class="fa fa-hand-o-left" aria-hidden="true"/>
-                                </span>
+                            <i class="fa fa-hand-o-left" aria-hidden="true"/>
+                        </span>
                     }
-
                 </div>
 
                 <div className="row">
@@ -185,12 +224,18 @@ export default class Send extends Component {
                 </div>
 
                 <div className="row">
-                            <span>
-                                <p className="send-fee-label">Fee:</p>
-                                <p className="send-fee-amount">{this.state.fee}</p>
-                                <p className="send-fee-text">{this.state.currency}&nbsp;
-                                    ≈ {this.state.feeAlias} {this.state.currencyAlias}</p>
-                            </span>
+                    <div>
+                        <p className="send-fee-label">Fee:</p>
+                        <p className="send-fee-amount">{this.state.fee}</p>
+                        <p className="send-fee-text">{this.state.currency}&nbsp;
+                            ≈ {this.state.feeAlias} {this.state.currencyAlias}</p>
+                    </div>
+                    <div>
+                        <p className="send-fee-label">Total:</p>
+                        <p className="send-fee-amount">{this.state.total}</p>
+                        <p className="send-fee-text">{this.state.currency}&nbsp;
+                            ≈ {this.state.totalAlias} {this.state.currencyAlias}</p>
+                    </div>
                 </div>
 
                 <div className="row">

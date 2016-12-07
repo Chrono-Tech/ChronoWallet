@@ -26,20 +26,24 @@ export default class Dashboard extends React.Component {
     }
 
     componentWillMount() {
-        let unsubscribe = store.subscribe(() => {
-                if (store.getState().get('currentAccount')) {
-                    this.setBalanceUpdater();
+        //If balance already in the store
+        if (store.getState().get('balances')) {
+            this.setBalanceUpdater();
+            this.setState({loading: false});
+        } else { //Wait while balance loading to store
+            let unsubscribe = store.subscribe(() => {
+                    if (store.getState().get('balances')) {
+                        unsubscribe();
+                        this.setBalanceUpdater();
+                        this.setState({loading: false});
+                    }
                 }
-                if (store.getState().get('balances')) {
-                    unsubscribe();
-                    this.setState({loading: false});
-                }
-            }
-        );
+            );
+        }
     }
 
     setBalanceUpdater() {
-        this.setState({intervalID: setInterval(() => getBalances(), 15000)});
+        this.setState({intervalID: setInterval(() => getBalances(), 10000)});
     }
 
     componentWillUnmount() {
@@ -77,7 +81,7 @@ export default class Dashboard extends React.Component {
                                 </div>
 
                                 <div className="row">
-                                    <div className="hash-container">
+                                    <div className="hash-container text-center">
                                         {hashes}
                                     </div>
                                 </div>
@@ -86,8 +90,6 @@ export default class Dashboard extends React.Component {
                             null
                         }
                     </div>
-
-
                     <div className="col-md-6">
                         <Balances currentAccount={this.props.currentAccount}
                                   accounts={this.props.accounts}
