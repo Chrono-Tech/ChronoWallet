@@ -4,10 +4,9 @@
   "description": "Secure wallet for storing tokens",
   "main": "index.js",
   "scripts": {
-    "build": "webpack --config webpack.config.js --content-base src",
+    "build": "NODE_ENV=production webpack --config webpack.config.js --content-base ./src",
     "dev": "webpack-dev-server --config webpack.config.js --content-base ./src --inline --hot --host 0.0.0.0",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "NODE_ENV=production webpack",
     "stage": "NODE_ENV=stage webpack"
   },
   "repository": {
@@ -37,6 +36,7 @@
     "babel-preset-stage-0": "^6.3.13",
     "bignumber.js": "^3.0.1",
     "bluebird": "^3.4.6",
+    "copy-webpack-plugin": "^4.0.1",
     "immutable": "^3.8.1",
     "raw-loader": "^0.5.1",
     "react": "^0.14.6",

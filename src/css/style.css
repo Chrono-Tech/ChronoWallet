@@ -207,9 +207,21 @@ h3 {
     line-height: 30px;
 }
 
+.sent-switch-button {
+    margin-left: 10px;
+    width: 85px;
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    color: #fff;
+    font-weight: 700;
+    padding: 0 10px 2px 10px;
+    font-size: 15px;
+}
+
 .send-amount-alias {
     color: #17579c;
     display: inline-block;
+    width:250px;
     font-size: 17px;
     font-weight: 700;
     line-height: 30px;
@@ -283,6 +295,7 @@ h3 {
 .currency-dropdown-entry {
     border-top: 2px solid #eeeeee;
     line-height: 30px;
+    background-color: #ffffff;
     color: #17579c;
     font-size: 15px;
     font-weight: 500;

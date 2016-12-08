@@ -2,8 +2,8 @@ import React from "react";
 import {connect} from "react-redux";
 import {getBalances} from "../actions";
 import store from "../store";
-import Send from "./Send";
-import Balances from "./Balances";
+import Send from "../components/Send";
+import Balances from "../components/Balances";
 import {List} from "immutable";
 
 

@@ -12,28 +12,30 @@ export default class Send extends Component {
             recipientInputError: '',
             amountInputError: '',
             amount: '',
-            amountAlias: '0',
+            amountFiat: '0',
             currency: '',
             currencies: '',
             currencyAlias: '',
             currenciesAlias: '',
             fee: 0,
-            feeRate: 0,
+            feeRate: 0, //is a BigNumber
             feeAlias: 0,
-            aliasRate: 0,
+            aliasRate: 0, //is a BigNumber
             total: 0,
-            totalAlias: 0
+            totalAlias: 0,
+            switched: false
         };
         this.recipientHandler = this.recipientHandler.bind(this);
         this.amountHandler = this.amountHandler.bind(this);
         this.send = this.send.bind(this);
+        this.switchAlias = this.switchAlias.bind(this);
         this.revertShowCurrency = this.revertShowCurrency.bind(this);
         this.showDropdownCurrency = this.showDropdownCurrency.bind(this);
         this.pickCurrency = this.pickCurrency.bind(this);
     }
 
     componentWillMount() {
-        this.pickCurrency(this.props.balances.get(0).get('symbol'), this.props.balances);
+        this.pickCurrency(this.props.balances.get(0).get('symbol'));
     }
 
     revertShowCurrency() {
@@ -54,15 +56,22 @@ export default class Send extends Component {
     }
 
     amountHandler(text) {
-        let balance = this.props.balances ?
-            this.props.balances.find(balance => balance.get('symbol') === this.state.currency)
+        let balance = this.state.switched ?
+            this.props.balances.find(balance => balance.get('fiatSymbol') === this.state.currency)
                 .get('balance')
-            : null;
-
+            : this.props.balances.find(balance => balance.get('symbol') === this.state.currency)
+            .get('balance');
         if (text !== '' && isNaN(text)) {
             this.setState({amount: text, amountInputError: 'Not a number.'});
-        } else if (this.props.balances && parseFloat(text) > balance) {
+        } else if (this.props.switched && new BigNumber(text).dividedBy(this.state.aliasRate).toNumber() > balance) {
             this.setState({amount: text, amountInputError: 'Not enough tokens on your balance.'});
+        } else if (parseFloat(text) > balance) {
+            this.setState({amount: text, amountInputError: 'Not enough tokens on your balance.'});
+        } else if (this.props.switched && !/^\d*[\.]?\d{0,2}$/.test(text.replace(/\.?0+$/, ""))) {
+            this.setState({
+                amount: text,
+                amountInputError: 'You can\'t send amount having more than 2 decimal places'
+            });
         } else if (!/^\d*[\.]?\d{0,8}$/.test(text.replace(/\.?0+$/, ""))) {
             this.setState({
                 amount: text,
@@ -74,7 +83,7 @@ export default class Send extends Component {
             this.setState({
                 amount: text,
                 amountInputError: '',
-                amountAlias: 0,
+                amountFiat: 0,
                 fee: 0,
                 feeAlias: 0,
                 total: 0,
@@ -82,9 +91,9 @@ export default class Send extends Component {
             });
         } else {
             let integer = new BigNumber(text);
-            let aliasRate = new BigNumber(this.state.aliasRate);
+            let aliasRate = this.state.aliasRate;
             let amountAlias = integer.times(aliasRate).round(2);
-            let fee = integer.times(new BigNumber(this.state.feeRate)).round(8);
+            let fee = integer.times(this.state.feeRate).round(8);
             if (integer.lessThan('0.000004')) {
                 //Sets fee for extra-small numbers
                 fee = new BigNumber('0.00000001');
@@ -95,7 +104,7 @@ export default class Send extends Component {
             this.setState({
                 amountInputError: '',
                 amount: text,
-                amountAlias: amountAlias.toString(),
+                amountFiat: amountAlias.toString(),
                 fee: fee.toFixed(8).replace(/\.?0+$/, ""),
                 feeAlias: feeAlias.toFixed(2).replace(/\.?0+$/, ""),
                 total: total.toFixed(8).replace(/\.?0+$/, ""),
@@ -124,35 +133,63 @@ export default class Send extends Component {
         }
 
         send(this.state.recipient, this.state.amount, this.state.currency);
-        this.setState({recipient: '', amount: ''});
+        this.setState({recipient: '', amount: '', amountFiat:0});
     }
 
     showDropdownCurrency() {
         return (
             <div className="currency-dropdown">
                 {this.state.currencies.map(currency =>
-                    <p onClick={() => this.pickCurrency(currency, this.props.balances)}
+                    <p onClick={() => this.pickCurrency(currency)}
                        className="currency-dropdown-entry">{currency}</p>)}
             </div>
         );
     }
 
-    pickCurrency(currency, balances) {
+    switchAlias() {
+        let currency = this.state.currency;
+        let currencies = this.state.currencies;
+        let currencyAlias = this.state.currencyAlias;
+        let currenciesAlias = this.state.currenciesAlias;
+        let switched = this.state.switched;
+        this.setState({
+            currency: currencyAlias,
+            currencies: currenciesAlias,
+            currenciesAlias: currencies,
+            currencyAlias: currency,
+            switched: !switched
+        });
+    }
+
+    pickCurrency(currency) {
         let currencies = [];
         let currencyAlias = '';
         let currenciesAlias = [];
         let aliasRate = 1;
         let fee = 0;
-        balances.forEach((balance) => {
-            if (balance.get('symbol') === currency) {
-                currencyAlias = balance.get('fiatSymbol');
-                aliasRate = balance.get('fiatRate');
-                fee = balance.get('fee');
-                return;
-            }
-            currencies.push(balance.get('symbol'));
-            currenciesAlias.push(balance.get('fiatSymbol'));
-        });
+        if (this.state.switched) {
+            this.props.balances.forEach((balance) => {
+                if (balance.get('fiatSymbol') === currency) {
+                    currencyAlias = balance.get('symbol');
+                    aliasRate = new BigNumber(balance.get('fiatRate'));
+                    fee = new BigNumber(balance.get('fee'));
+                    return;
+                }
+                currencies.push(balance.get('fiatSymbol'));
+                currenciesAlias.push(balance.get('symbol'));
+            });
+        } else {
+            this.props.balances.forEach((balance) => {
+                if (balance.get('symbol') === currency) {
+                    currencyAlias = balance.get('fiatSymbol');
+                    aliasRate = new BigNumber(balance.get('fiatRate'));
+                    fee = new BigNumber(balance.get('fee'));
+                    return;
+                }
+                currencies.push(balance.get('symbol'));
+                currenciesAlias.push(balance.get('fiatSymbol'));
+            });
+        }
         this.setState({
             currency: currency,
             currencies: currencies,
@@ -200,7 +237,8 @@ export default class Send extends Component {
                     <span style={{"position": "relative"}}>
                         <p className="send-input-currency-label">{this.state.currency}</p>
                         <button className="dropdown-button"
-                                onClick={() => this.revertShowCurrency()}>
+                                onClick={() => this.revertShowCurrency()}
+                        >
                             <div className="dropdown-symbol">
                                 <i class="fa fa-arrow-down" aria-hidden="true"/>
                             </div>
@@ -220,7 +258,13 @@ export default class Send extends Component {
 
                 <div className="row">
                     <p className="send-amount-alias">
-                        ≈ {this.state.amountAlias} {this.state.currencyAlias}</p>
+                        ≈ {this.state.amountFiat} {this.state.currencyAlias}</p>
+
+                    <button className="sent-switch-button"
+                            onClick={() => this.switchAlias()}
+                    >
+                        Switch
+                    </button>
                 </div>
 
                 <div className="row">

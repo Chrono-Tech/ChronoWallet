@@ -29,9 +29,7 @@ export default class Layout extends React.Component {
 
     render() {
         let accountsCount = store.getState().get('accounts') ? store.getState().get('accounts').size : null;
-        console.log("accountsCount", accountsCount);
         if (typeof web3 === 'undefined') {
-            console.log("accountsCount", accountsCount);
             return (<div className="container transparent-box text-center vertical-align">
                 <p className="blue-big">Chrono</p>
                 <p className="yellow-big">Wallet</p>
@@ -43,7 +41,6 @@ export default class Layout extends React.Component {
                 <image src="../assets/cat1.gif"/>
             );
         } else if (store.getState().get('accounts').size > 0) {
-            console.log("accountsCountIn", accountsCount);
             return (
                 <div className="container">
                     <NavBar/>
