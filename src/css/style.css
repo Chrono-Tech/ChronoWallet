@@ -122,6 +122,7 @@ h2 {
 }
 
 h3 {
+    -webkit-user-select: none;
     color: #e2a864 !important;
     font-weight: 700 !important;
     font-size: 15px !important;
@@ -141,7 +142,7 @@ h3 {
     color: #161240;
     line-height: 30px !important;
     border: 2px solid #17579c !important;
-    margin-top: 0px;
+    margin-top: 10px;
 }
 
 .send-amount-input {
@@ -150,7 +151,7 @@ h3 {
     color: #161240;
     line-height: 30px !important;
     border: 2px solid #17579c !important;
-    margin-top: 0px;
+    margin-top: 10px;
 }
 
 .send-input-error {

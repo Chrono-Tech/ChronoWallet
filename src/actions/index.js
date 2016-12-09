@@ -66,14 +66,19 @@ export function getBalances() {
 }
 
 export function send(to, amount, symbol) {
-    let value = new BigNumber(amount).times(Math.pow(10,8)).toString();
-    let balances = store.getState().get('balances');
-    let contract = balances.filter(balance => balance.get('symbol') === symbol).get(0).get('contract');
-    contract.transferAsync(to, value).then(hash => {
-        store.dispatch({
-            type: 'SEND',
-            payload: hash
-        });
-        getBalances();
+    // let value = new BigNumber(amount).times(Math.pow(10,8)).toString();
+    // let balances = store.getState().get('balances');
+    // let contract = balances.filter(balance => balance.get('symbol') === symbol).get(0).get('contract');
+    // contract.transferAsync(to, value).then(hash => {
+    //     store.dispatch({
+    //         type: 'SEND',
+    //         payload: hash
+    //     });
+    //     getBalances();
+    // });
+
+    store.dispatch({
+        type: 'SEND',
+        payload: amount
     });
 }

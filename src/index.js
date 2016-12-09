@@ -7,6 +7,7 @@ import store from "./store";
 import Layout from "./views/Layout";
 import Dashboard from "./views/Dashboard";
 import Developing from "./views/Developing";
+import Exchange from "./views/Exchange";
 
 // Custom css
 require('./css/style.css');
@@ -19,6 +20,7 @@ ReactDOM.render(
             <Route path="/" component={Layout}>
                 <IndexRoute component={Dashboard}></IndexRoute>
                 <Route path="developing" name="Developing" component={Developing}></Route>
+                <Route path="exchange" name="Exchange" component={Exchange}></Route>
             </Route>
         </Router>
     </Provider>, app);
