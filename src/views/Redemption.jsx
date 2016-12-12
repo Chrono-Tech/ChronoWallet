@@ -1,6 +1,6 @@
 import React from "react";
 
-export default class Developing extends React.Component{
+export default class Redemption extends React.Component{
 
     render(){
         return (

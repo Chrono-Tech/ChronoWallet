@@ -53,7 +53,6 @@ export default class Layout extends React.Component {
                     <p className="blue-big">Chrono</p>
                     <p className="yellow-big">Wallet</p>
                     <h1>To use wallet please connect your address.</h1>
-                    <h3>(If you are using Mist you can find it in the top right corner.)</h3>
                 </div>
             );
         }

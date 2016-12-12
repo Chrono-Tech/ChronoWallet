@@ -429,3 +429,36 @@ h3 {
 .cat {
     width: 500px;
 }
+
+.exchange-amount-input {
+    width: 170px;
+    padding: 3px;
+    color: #161240;
+    line-height: 30px !important;
+    border: 2px solid #17579c !important;
+    margin-top: 10px;
+    margin-left: 15px;
+}
+
+.exchange-label {
+    color: #17579c;
+    font-weight: 700;
+    font-size: 20px;
+    display: inline-block;
+    padding: 3px 7px 3px 7px;
+    margin-left: 15px;
+}
+
+.exchange-amount-getting{
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 30px;
+    width: 170px;
+    padding: 3px 7px 3px 7px;
+    margin-left: 15px;
+    margin-top: 10px;
+}

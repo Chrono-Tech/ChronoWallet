@@ -2,7 +2,7 @@ import React from "react";
 import {connect} from "react-redux";
 import {getBalances} from "../actions";
 import store from "../store";
-import Send from "../components/Send";
+import SendContainer from "../containers/SendContainer";
 import Balances from "../components/Balances";
 import {List} from "immutable";
 
@@ -72,7 +72,7 @@ export default class Dashboard extends React.Component {
                 :
                 <div>
                     <div className="col-md-6">
-                        <Send balances={balances}/>
+                        <SendContainer balances={balances}/>
 
                         {this.props.txHashes ?
                             <div className="transparent-box">

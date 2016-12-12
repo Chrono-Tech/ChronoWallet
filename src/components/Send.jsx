@@ -1,7 +1,4 @@
 import React, {PropTypes, Component} from "react";
-import {send} from "../actions";
-import {List} from "immutable";
-import BigNumber from "bignumber.js";
 
 export default class Send extends Component {
 
@@ -10,19 +7,26 @@ export default class Send extends Component {
         this.state = {
             showDropdownCurrency: false,
         };
+        this.dontShowCurrency = this.dontShowCurrency.bind(this);
         this.showDropdownCurrency = this.showDropdownCurrency.bind(this);
     }
 
+    dontShowCurrency() {
+        let revert = this.state.showDropdownCurrency;
+        this.setState({showDropdownCurrency: !revert})
+    }
 
     showDropdownCurrency() {
         return (
             <div className="currency-dropdown">
                 {this.props.currencies.map(currency =>
-                    <p onClick={() => this.pickCurrency(currency)}
+                    <p onClick={() => {
+                        this.props.pickCurrency(currency);
+                        this.dontShowCurrency()
+                    }}
                        className="currency-dropdown-entry">{currency}</p>)}
             </div>
         );
-
     }
 
     render() {
@@ -59,9 +63,13 @@ export default class Send extends Component {
                            onChange={input => this.props.amountHandler(input.target.value)}
                     />
                     <span style={{"position": "relative"}}>
-                        <p className="send-input-currency-label">{this.props.currency}</p>
+                        <p className="send-input-currency-label"
+                           onClick={() => this.dontShowCurrency()}
+                        >
+                            {this.props.currency}
+                        </p>
                         <button className="dropdown-button"
-                                onClick={() => this.revertShowCurrency()}
+                                onClick={() => this.dontShowCurrency()}
                         >
                             <div className="dropdown-symbol">
                                 <i class="fa fa-arrow-down" aria-hidden="true"/>
@@ -85,7 +93,7 @@ export default class Send extends Component {
                         ≈ {this.props.amountAlias} {this.props.currencyAlias}</p>
 
                     <button className="sent-switch-button"
-                            onClick={() => this.switchAlias()}
+                            onClick={() => this.props.switchAlias()}
                     >
                         Switch
                     </button>
@@ -111,7 +119,7 @@ export default class Send extends Component {
                 </div>
 
                 <div className="row">
-                    <button className="send-button" onClick={this.send}>Send</button>
+                    <button className="send-button" onClick={this.props.send}>Send</button>
                 </div>
             </div>
         );
@@ -131,5 +139,9 @@ Send.propTypes = {
     amountInputError: PropTypes.string.isRequired,
     recipientInputError: PropTypes.string.isRequired,
     recipientHandler: PropTypes.func.isRequired,
+    recipient: PropTypes.string.isRequired,
     amountHandler: PropTypes.func.isRequired,
+    send: PropTypes.func.isRequired,
+    switchAlias: PropTypes.func.isRequired,
+    pickCurrency: PropTypes.func.isRequired,
 };

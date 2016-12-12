@@ -6,7 +6,8 @@ import {Router, Route, hashHistory, IndexRoute} from 'react-router';
 import store from "./store";
 import Layout from "./views/Layout";
 import Dashboard from "./views/Dashboard";
-import Developing from "./views/Developing";
+import Voting from "./views/Voting";
+import Redemption from "./views/Redemption";
 import Exchange from "./views/Exchange";
 
 // Custom css
@@ -19,7 +20,8 @@ ReactDOM.render(
         <Router history={hashHistory}>
             <Route path="/" component={Layout}>
                 <IndexRoute component={Dashboard}></IndexRoute>
-                <Route path="developing" name="Developing" component={Developing}></Route>
+                <Route path="voting" name="Voting" component={Voting}></Route>
+                <Route path="redemption" name="Redemption" component={Redemption}></Route>
                 <Route path="exchange" name="Exchange" component={Exchange}></Route>
             </Route>
         </Router>

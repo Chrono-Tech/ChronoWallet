@@ -10,13 +10,14 @@ export default class SendContainer extends Component {
         super();
         this.state = {
             recipientInputError: '',
+            recipient: '', //variable for recipient input
             amountInputError: '',
-            amount: '', //variable for input
+            amount: '', //variable for amount input
             amountLH: 0,
-            amountFiat: '0',
+            amountFiat: 0,
             currency: '',
-            currencies: '',
             currencyAlias: '',
+            currencies: '',
             currenciesAlias: '',
             fee: 0,
             feeRate: 0, //is a BigNumber
@@ -31,19 +32,12 @@ export default class SendContainer extends Component {
         this.send = this.send.bind(this);
         this.checkAmount = this.checkAmount.bind(this);
         this.switchAlias = this.switchAlias.bind(this);
-        this.revertShowCurrency = this.revertShowCurrency.bind(this);
         this.pickCurrency = this.pickCurrency.bind(this);
     }
 
     componentWillMount() {
         this.pickCurrency(this.props.balances.get(0).get('symbol'));
     }
-
-    revertShowCurrency() {
-        let revert = this.state.showDropdownCurrency;
-        this.setState({showDropdownCurrency: !revert})
-    }
-
 
     recipientHandler(text) {
         if (text.length <= 42) {
@@ -57,6 +51,7 @@ export default class SendContainer extends Component {
     }
 
     checkAmount(text) {
+        console.log("chackAmount balances", this.props.balances);
         let balance = this.props.balances
             .find(balance => balance.get('symbol') === this.state.currency)
             .get('balance');
@@ -114,7 +109,7 @@ export default class SendContainer extends Component {
             let aliasRate = this.state.aliasRate;
             let amountLH = integer;
             let amountAlias = integer.times(aliasRate).round(2);
-            if(this.state.switched){
+            if (this.state.switched) {
                 amountLH = integer.times(new BigNumber(aliasRate).pow(-1)).round(8);
                 amountAlias = integer;
             }
@@ -158,8 +153,8 @@ export default class SendContainer extends Component {
             return;
         }
 
-        send(this.state.recipient, this.state.amount, this.state.currency);
-        this.setState({recipient: '', amount: '', amountFiat: 0});
+        send(this.state.recipient, this.state.amountLH, this.state.currency);
+        this.setState({recipient: '', amount: '', amountFiat: 0, fee: 0, total: 0});
     }
 
     switchAlias() {
@@ -176,33 +171,19 @@ export default class SendContainer extends Component {
         let currenciesAlias = [];
         let aliasRate = 1;
         let fee = 0;
-        if (this.state.switched) {
-            this.props.balances.forEach((balance) => {
-                if (balance.get('fiatSymbol') === currency) {
-                    currencyAlias = balance.get('symbol');
-                    aliasRate = new BigNumber(balance.get('fiatRate'));
-                    fee = new BigNumber(balance.get('fee'));
-                    return;
-                }
-                currencies.push(balance.get('fiatSymbol'));
-                currenciesAlias.push(balance.get('symbol'));
-            });
-        } else {
-            this.props.balances.forEach((balance) => {
-                if (balance.get('symbol') === currency) {
-                    currencyAlias = balance.get('fiatSymbol');
-                    aliasRate = new BigNumber(balance.get('fiatRate'));
-                    fee = new BigNumber(balance.get('fee'));
-                    return;
-                }
-                currencies.push(balance.get('symbol'));
-                currenciesAlias.push(balance.get('fiatSymbol'));
-            });
-        }
+        this.props.balances.forEach((balance) => {
+            if (balance.get('symbol') === currency || balance.get('fiatSymbol') === currency) {
+                currencyAlias = balance.get('fiatSymbol');
+                aliasRate = new BigNumber(balance.get('fiatRate'));
+                fee = new BigNumber(balance.get('fee'));
+                return;
+            }
+            currencies.push(balance.get('symbol'));
+            currenciesAlias.push(balance.get('fiatSymbol'));
+        });
         this.setState({
             currency: currency,
             currencies: currencies,
-            showDropdownCurrency: false,
             currenciesAlias: currenciesAlias,
             currencyAlias: currencyAlias,
             aliasRate: aliasRate,
@@ -211,13 +192,44 @@ export default class SendContainer extends Component {
     }
 
     render() {
-        let currencyChoices = this.showDropdownCurrency();
+        let currency;
+        let currencyAlias;
+        let currencies;
+        let amountAlias;
+        if (this.state.switched) {
+            currency = this.state.currencyAlias;
+            currencyAlias = this.state.currency;
+            currencies = this.state.currenciesAlias;
+            amountAlias = this.state.amountLH.toString();
+        } else {
+            currency = this.state.currency;
+            currencyAlias = this.state.currencyAlias;
+            currencies = this.state.currencies;
+            amountAlias = this.state.amountFiat.toString();
+        }
         return (
-            <Send/>
+            <Send currencies={currencies}
+                  currency={currency}
+                  currencyAlias={currencyAlias}
+                  amount={this.state.amount}
+                  amountAlias={amountAlias}
+                  fee={this.state.fee.toString()}
+                  feeAlias={this.state.feeAlias.toString()}
+                  total={this.state.total.toString()}
+                  totalAlias={this.state.totalAlias.toString()}
+                  amountInputError={this.state.amountInputError}
+                  recipient={this.state.recipient}
+                  recipientInputError={this.state.recipientInputError}
+                  recipientHandler={this.recipientHandler}
+                  amountHandler={this.amountHandler}
+                  send={this.send}
+                  switchAlias={this.switchAlias}
+                  pickCurrency={this.pickCurrency}
+            />
         );
     }
 }
 
-Send.propTypes = {
+SendContainer.propTypes = {
     balances: PropTypes.instanceOf(List).isRequired,
 };
