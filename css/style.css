@@ -122,6 +122,7 @@ h2 {
 }
 
 h3 {
+    -webkit-user-select: none;
     color: #e2a864 !important;
     font-weight: 700 !important;
     font-size: 15px !important;
@@ -141,7 +142,7 @@ h3 {
     color: #161240;
     line-height: 30px !important;
     border: 2px solid #17579c !important;
-    margin-top: 0px;
+    margin-top: 10px;
 }
 
 .send-amount-input {
@@ -150,7 +151,7 @@ h3 {
     color: #161240;
     line-height: 30px !important;
     border: 2px solid #17579c !important;
-    margin-top: 0px;
+    margin-top: 10px;
 }
 
 .send-input-error {
@@ -207,9 +208,21 @@ h3 {
     line-height: 30px;
 }
 
+.sent-switch-button {
+    margin-left: 10px;
+    width: 85px;
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    color: #fff;
+    font-weight: 700;
+    padding: 0 10px 2px 10px;
+    font-size: 15px;
+}
+
 .send-amount-alias {
     color: #17579c;
     display: inline-block;
+    width:250px;
     font-size: 17px;
     font-weight: 700;
     line-height: 30px;
@@ -283,6 +296,7 @@ h3 {
 .currency-dropdown-entry {
     border-top: 2px solid #eeeeee;
     line-height: 30px;
+    background-color: #ffffff;
     color: #17579c;
     font-size: 15px;
     font-weight: 500;
@@ -414,4 +428,37 @@ h3 {
 
 .cat {
     width: 500px;
+}
+
+.exchange-amount-input {
+    width: 170px;
+    padding: 3px;
+    color: #161240;
+    line-height: 30px !important;
+    border: 2px solid #17579c !important;
+    margin-top: 10px;
+    margin-left: 15px;
+}
+
+.exchange-label {
+    color: #17579c;
+    font-weight: 700;
+    font-size: 20px;
+    display: inline-block;
+    padding: 3px 7px 3px 7px;
+    margin-left: 15px;
+}
+
+.exchange-amount-getting{
+    border: 2px solid #17579c;
+    background-color: #17579c;
+    color: #ffffff;
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 30px;
+    width: 170px;
+    padding: 3px 7px 3px 7px;
+    margin-left: 15px;
+    margin-top: 10px;
 }
