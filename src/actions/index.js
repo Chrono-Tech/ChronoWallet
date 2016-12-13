@@ -2,7 +2,8 @@ import Promise from 'bluebird';
 import config from '../config';
 import store from'../store';
 import {Map} from 'immutable';
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
+import moment from 'moment';
 
 export function configure() {
     let contracts = config.contractAddresses.map(address => {
@@ -44,6 +45,7 @@ export function setCurrentAccount(address) {
 export function getBalances() {
     let contracts = store.getState().get('contracts');
     let account = store.getState().get('currentAccount');
+    let days = moment().diff(moment([2016,11,1]),'days');
     return Promise.map(contracts, (contract, index) => {
         return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account), contract.balanceOfAsync(account, 'pending')])
             .then(([symbol, balance, pending]) => Map({
@@ -52,8 +54,8 @@ export function getBalances() {
                 pending: pending.minus(balance).div(Math.pow(10, 8)).toNumber(),
                 contract: contract,
                 fiatSymbol: config.fiat[index],
-                fiatRate: config.fiatRate[index], //TODO: change later to real rate
-                fee: config.fee[index]
+                fiatRate: new BigNumber(config.fiatStartRate[index]).plus(new BigNumber(config.fiatRatio[index]).times(new BigNumber(days))),
+                fee: new BigNumber(config.fee[index])
             }))
     }).then(entries => {
         let balances = [];

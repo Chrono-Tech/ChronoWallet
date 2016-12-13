@@ -1,8 +1,13 @@
 module.exports = {
     contractAddresses: ['0x44815af1a9deac7f2152a81de4143ef070440fd2','0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f', '0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501'],
-    fiat: ['EUR', 'AUD', 'USD'], //fiat should be written in same order as contract according to it's currency!!!!,
-    fee: [0.0015, 0.0015, 0.0015], //fee should be written in same order as contract accordingly!!!!,
-    fiatRate: [0.1, 15, 2], //fiat rate should be written in same order as contract accordingly!!!!,
+    //Order Matters!!!
+    fiat: ['EUR', 'AUD', 'USD', 'GBP'],
+    fee: [0.0015, 0.0015, 0.0015, 0.0015],
+    //this is growth ratio per day
+    fiatRatio: [0.00043835616, 0.00175342465, 0.00169863013 , 0.00076712328],
+    fiatStartRate: [11.30, 31.32, 25.27 , 12.62],
+
+    //Contract abi is common for every contract
     contractABI: [{
         "constant": true,
         "inputs": [],

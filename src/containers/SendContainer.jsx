@@ -33,6 +33,7 @@ export default class SendContainer extends Component {
         this.checkAmount = this.checkAmount.bind(this);
         this.switchAlias = this.switchAlias.bind(this);
         this.pickCurrency = this.pickCurrency.bind(this);
+        this.clearAmount = this.clearAmount.bind(this);
     }
 
     componentWillMount() {
@@ -51,7 +52,6 @@ export default class SendContainer extends Component {
     }
 
     checkAmount(text) {
-        console.log("chackAmount balances", this.props.balances);
         let balance = this.props.balances
             .find(balance => balance.get('symbol') === this.state.currency)
             .get('balance');
@@ -61,14 +61,10 @@ export default class SendContainer extends Component {
         } else if (text.startsWith('-')) {
             this.setState({amount: text, amountInputError: 'Has to be positive number.'});
         } else if (text === '') {
+            this.clearAmount();
             this.setState({
                 amount: text,
                 amountInputError: '',
-                amountAlias: 0,
-                fee: 0,
-                feeAlias: 0,
-                total: 0,
-                totalAlias: 0
             });
         } else if (this.state.switched) {
             let aliasBalance = new BigNumber(balance).times(this.state.aliasRate).toFixed(2).replace(/\.?0+$/, "");
@@ -108,10 +104,10 @@ export default class SendContainer extends Component {
             let integer = new BigNumber(text);
             let aliasRate = this.state.aliasRate;
             let amountLH = integer;
-            let amountAlias = integer.times(aliasRate).round(2);
+            let amountFiat = integer.times(aliasRate).round(2);
             if (this.state.switched) {
                 amountLH = integer.times(new BigNumber(aliasRate).pow(-1)).round(8);
-                amountAlias = integer;
+                amountFiat = integer;
             }
             let fee = integer.times(this.state.feeRate).round(8);
             if (integer.lessThan('0.000004')) {
@@ -125,7 +121,7 @@ export default class SendContainer extends Component {
                 amountInputError: '',
                 amount: text,
                 amountLH: amountLH.toString(),
-                amountFiat: amountAlias.toString(),
+                amountFiat: amountFiat.toString(),
                 fee: fee.toFixed(8).replace(/\.?0+$/, ""),
                 feeAlias: feeAlias.toFixed(2).replace(/\.?0+$/, ""),
                 total: total.toFixed(8).replace(/\.?0+$/, ""),
@@ -154,27 +150,44 @@ export default class SendContainer extends Component {
         }
 
         send(this.state.recipient, this.state.amountLH, this.state.currency);
-        this.setState({recipient: '', amount: '', amountFiat: 0, fee: 0, total: 0});
+        this.setState({recipient: ''});
+        this.clearAmount();
     }
 
     switchAlias() {
         let switched = this.state.switched;
         this.setState({
-            switched: !switched
+            switched: !switched,
         });
-        this.amountHandler(this.state.amount);
+        this.clearAmount();
     }
 
-    pickCurrency(currency) {
+    clearAmount(){
+        this.setState({
+            amount:'',
+            amountLH: 0,
+            amountFiat: 0,
+            fee: 0,
+            feeAlias: 0,
+            total: 0,
+            totalAlias: 0
+        });
+    }
+
+    pickCurrency(pickedCurrency) {
         let currencies = [];
+        let currency = pickedCurrency;
         let currencyAlias = '';
         let currenciesAlias = [];
         let aliasRate = 1;
         let fee = 0;
         this.props.balances.forEach((balance) => {
-            if (balance.get('symbol') === currency || balance.get('fiatSymbol') === currency) {
+            if (balance.get('symbol') === pickedCurrency || balance.get('fiatSymbol') === pickedCurrency) {
+                if(balance.get('fiatSymbol') === pickedCurrency){
+                    currency = balance.get('symbol');
+                }
                 currencyAlias = balance.get('fiatSymbol');
-                aliasRate = new BigNumber(balance.get('fiatRate'));
+                aliasRate = balance.get('fiatRate');
                 fee = new BigNumber(balance.get('fee'));
                 return;
             }
@@ -187,8 +200,9 @@ export default class SendContainer extends Component {
             currenciesAlias: currenciesAlias,
             currencyAlias: currencyAlias,
             aliasRate: aliasRate,
-            feeRate: fee
+            feeRate: fee,
         });
+        this.clearAmount();
     }
 
     render() {
