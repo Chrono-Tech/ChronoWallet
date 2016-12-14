@@ -19,9 +19,9 @@ export default class SendContainer extends Component {
             currencyAlias: '',
             currencies: '',
             currenciesAlias: '',
-            fee: 0,
+            fee: '0',
             feeRate: 0, //is a BigNumber
-            feeAlias: 0,
+            feeAlias: '0',
             aliasRate: 0, //is a BigNumber
             total: 0,
             totalAlias: 0,
@@ -52,10 +52,6 @@ export default class SendContainer extends Component {
     }
 
     checkAmount(text) {
-        let balance = this.props.balances
-            .find(balance => balance.get('symbol') === this.state.currency)
-            .get('balance');
-
         if (text !== '' && isNaN(text)) {
             this.setState({amount: text, amountInputError: 'Not a number.'});
         } else if (text.startsWith('-')) {
@@ -67,13 +63,7 @@ export default class SendContainer extends Component {
                 amountInputError: '',
             });
         } else if (this.state.switched) {
-            let aliasBalance = new BigNumber(balance).times(this.state.aliasRate).toFixed(2).replace(/\.?0+$/, "");
-            if (this.props.balances && parseFloat(text) > aliasBalance) {
-                this.setState({
-                    amount: text,
-                    amountInputError: 'Not enough tokens on your balance.'
-                });
-            } else if (!/^\d*[\.]?\d{0,2}$/.test(text.replace(/\.?0+$/, ""))) {
+            if (!/^\d*[\.]?\d{0,2}$/.test(text.replace(/\.?0+$/, ""))) {
                 this.setState({
                     amount: text,
                     amountInputError: 'You can\'t send amount having more than 2 decimal places'
@@ -82,12 +72,7 @@ export default class SendContainer extends Component {
                 return true;
             }
         } else {
-            if (this.props.balances && parseFloat(text) > balance) {
-                this.setState({
-                    amount: text,
-                    amountInputError: 'Not enough tokens on your balance.'
-                });
-            } else if (!/^\d*[\.]?\d{0,8}$/.test(text.replace(/\.?0+$/, ""))) {
+            if (!/^\d*[\.]?\d{0,8}$/.test(text.replace(/\.?0+$/, ""))) {
                 this.setState({
                     amount: text,
                     amountInputError: 'You can\'t send amount having more than 8 decimal places'
@@ -103,29 +88,67 @@ export default class SendContainer extends Component {
         if (this.checkAmount(text)) {
             let integer = new BigNumber(text);
             let aliasRate = this.state.aliasRate;
-            let amountLH = integer;
-            let amountFiat = integer.times(aliasRate).round(2);
+            let amountLH;
+            let amountFiat;
+            let fee;
+            let feeAlias;
+            let total;
+            let totalAlias;
+
+            let balance = this.props.balances
+                .find(balance => balance.get('symbol') === this.state.currency)
+                .get('balance');
+
             if (this.state.switched) {
-                amountLH = integer.times(new BigNumber(aliasRate).pow(-1)).round(8);
+                amountLH = integer.times(aliasRate.pow(-1)).round(8);
                 amountFiat = integer;
+                fee = amountFiat.times(this.state.feeRate).round(2);
+                feeAlias = amountLH.times(this.state.feeRate).round(8);
+                total = amountFiat.plus(fee).round(2);
+                totalAlias = amountLH.plus(feeAlias).round(8);
+
+                let aliasBalance = new BigNumber(balance).times(this.state.aliasRate);
+
+                if (total.greaterThan(aliasBalance)) {
+                    this.setState({
+                        amountInputError: 'Not enough tokens on your balance.'
+                    });
+                } else {
+                    this.setState({
+                        amountInputError: ''
+                    });
+                }
+            } else {
+                amountLH = integer;
+                amountFiat = integer.times(aliasRate).round(2);
+                fee = amountLH.times(this.state.feeRate.round(8));
+                if (integer.lessThan('0.000004')) {
+                    //Sets fee for extra-small numbers
+                    fee = new BigNumber('0.00000001');
+                }
+                feeAlias = amountFiat.times(this.state.feeRate).round(2);
+                total = amountLH.plus(fee).round(8);
+                totalAlias = amountFiat.plus(feeAlias).round(2);
+
+                if (total.greaterThan(balance)) {
+                    this.setState({
+                        amountInputError: 'Not enough tokens on your balance.',
+                    });
+                } else {
+                    this.setState({
+                        amountInputError: ''
+                    });
+                }
             }
-            let fee = integer.times(this.state.feeRate).round(8);
-            if (integer.lessThan('0.000004')) {
-                //Sets fee for extra-small numbers
-                fee = new BigNumber('0.00000001');
-            }
-            let feeAlias = fee.times(aliasRate).round(2);
-            let total = integer.plus(fee).round(8);
-            let totalAlias = total.times(aliasRate).round(2);
+
             this.setState({
-                amountInputError: '',
                 amount: text,
-                amountLH: amountLH.toString(),
-                amountFiat: amountFiat.toString(),
+                amountLH: amountLH.toFixed(8),
+                amountFiat: amountFiat.toFixed(2),
                 fee: fee.toFixed(8).replace(/\.?0+$/, ""),
-                feeAlias: feeAlias.toFixed(2).replace(/\.?0+$/, ""),
+                feeAlias: feeAlias.toFixed(8).replace(/\.?0+$/, ""),
                 total: total.toFixed(8).replace(/\.?0+$/, ""),
-                totalAlias: totalAlias.toFixed(2).replace(/\.?0+$/, "")
+                totalAlias: totalAlias.toFixed(8).replace(/\.?0+$/, "")
             });
         }
     }
@@ -157,18 +180,18 @@ export default class SendContainer extends Component {
     switchAlias() {
         let switched = this.state.switched;
         this.setState({
-            switched: !switched,
+            switched: !switched
         });
         this.clearAmount();
     }
 
-    clearAmount(){
+    clearAmount() {
         this.setState({
-            amount:'',
+            amount: '',
             amountLH: 0,
             amountFiat: 0,
-            fee: 0,
-            feeAlias: 0,
+            fee: '0',
+            feeAlias: '0',
             total: 0,
             totalAlias: 0
         });
@@ -183,7 +206,7 @@ export default class SendContainer extends Component {
         let fee = 0;
         this.props.balances.forEach((balance) => {
             if (balance.get('symbol') === pickedCurrency || balance.get('fiatSymbol') === pickedCurrency) {
-                if(balance.get('fiatSymbol') === pickedCurrency){
+                if (balance.get('fiatSymbol') === pickedCurrency) {
                     currency = balance.get('symbol');
                 }
                 currencyAlias = balance.get('fiatSymbol');
@@ -227,8 +250,8 @@ export default class SendContainer extends Component {
                   currencyAlias={currencyAlias}
                   amount={this.state.amount}
                   amountAlias={amountAlias}
-                  fee={this.state.fee.toString()}
-                  feeAlias={this.state.feeAlias.toString()}
+                  fee={this.state.fee}
+                  feeAlias={this.state.feeAlias}
                   total={this.state.total.toString()}
                   totalAlias={this.state.totalAlias.toString()}
                   amountInputError={this.state.amountInputError}

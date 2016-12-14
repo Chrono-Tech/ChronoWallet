@@ -4,7 +4,7 @@ module.exports = {
     fiat: ['EUR', 'AUD', 'USD', 'GBP'],
     fee: [0.0015, 0.0015, 0.0015, 0.0015],
     //this is growth ratio per day
-    fiatRatio: [0.00043835616, 0.00175342465, 0.00169863013 , 0.00076712328],
+    fiatRatio: ['0.00043835616', '0.00175342465', '0.00169863013', '0.00076712328'],
     fiatStartRate: [11.30, 31.32, 25.27 , 12.62],
 
     //Contract abi is common for every contract
