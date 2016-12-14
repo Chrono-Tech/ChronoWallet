@@ -1,11 +1,11 @@
 module.exports = {
-    contractAddresses: ['0x44815af1a9deac7f2152a81de4143ef070440fd2','0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f', '0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501'],
+    contractAddresses: ['0x44815af1a9deac7f2152a81de4143ef070440fd2', '0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f', '0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501'],
     //Order Matters!!!
     fiat: ['EUR', 'AUD', 'USD', 'GBP'],
     fee: [0.0015, 0.0015, 0.0015, 0.0015],
     //this is growth ratio per day
     fiatRatio: ['0.00043835616', '0.00175342465', '0.00169863013', '0.00076712328'],
-    fiatStartRate: [11.30, 31.32, 25.27 , 12.62],
+    fiatStartRate: [11.30, 31.32, 25.27, 12.62],
 
     //Contract abi is common for every contract
     contractABI: [{
@@ -165,6 +165,166 @@ module.exports = {
             "type": "address"
         }, {"indexed": false, "name": "value", "type": "uint256"}],
         "name": "Approve",
+        "type": "event"
+    }],
+
+    exchangeContract: ['0xf087da190c89fbc7d540daaa2f1d6a68d338fef0', '0xf087da190c89fbc7d540daaa2f1d6a68d338fef0', '0xf087da190c89fbc7d540daaa2f1d6a68d338fef0'], //LHUS
+    exchangeABI: [{
+        "constant": false,
+        "inputs": [{"name": "_buyPrice", "type": "uint256"}, {
+            "name": "_sellPrice",
+            "type": "uint256"
+        }],
+        "name": "setPrices",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}, {
+            "name": "_amount",
+            "type": "uint256"
+        }],
+        "name": "withdrawTokens",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_asset", "type": "address"}],
+        "name": "init",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}, {
+            "name": "_amount",
+            "type": "uint256"
+        }],
+        "name": "withdrawEth",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "asset",
+        "outputs": [{"name": "", "type": "address"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "claimContractOwnership",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "sellPrice",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_to", "type": "address"}],
+        "name": "changeContractOwnership",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "pendingContractOwner",
+        "outputs": [{"name": "", "type": "address"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "buyPrice",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}],
+        "name": "withdrawAllTokens",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "contractOwner",
+        "outputs": [{"name": "", "type": "address"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}],
+        "name": "withdrawAllEth",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_amount", "type": "uint256"}, {"name": "_price", "type": "uint256"}],
+        "name": "buy",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": true,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_amount", "type": "uint256"}, {"name": "_price", "type": "uint256"}],
+        "name": "sell",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_recipient", "type": "address"}],
+        "name": "withdrawAll",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {"payable": true, "type": "fallback"}, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_who", "type": "address"}, {
+            "indexed": false,
+            "name": "_token",
+            "type": "uint256"
+        }, {"indexed": false, "name": "_eth", "type": "uint256"}],
+        "name": "Sell",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_who", "type": "address"}, {
+            "indexed": false,
+            "name": "_token",
+            "type": "uint256"
+        }, {"indexed": false, "name": "_eth", "type": "uint256"}],
+        "name": "Buy",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_recipient", "type": "address"}, {
+            "indexed": false,
+            "name": "_amount",
+            "type": "uint256"
+        }],
+        "name": "WithdrawTokens",
+        "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": true, "name": "_recipient", "type": "address"}, {
+            "indexed": false,
+            "name": "_amount",
+            "type": "uint256"
+        }],
+        "name": "WithdrawEth",
         "type": "event"
     }]
 };

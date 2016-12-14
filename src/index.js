@@ -8,7 +8,7 @@ import Layout from "./views/Layout";
 import Dashboard from "./views/Dashboard";
 import Voting from "./views/Voting";
 import Redemption from "./views/Redemption";
-import Exchange from "./views/Exchange";
+import ExchangeContainer from "./containers/ExchangeContainer";
 
 // Custom css
 require('./css/style.css');
@@ -22,7 +22,7 @@ ReactDOM.render(
                 <IndexRoute component={Dashboard}></IndexRoute>
                 <Route path="voting" name="Voting" component={Voting}></Route>
                 <Route path="redemption" name="Redemption" component={Redemption}></Route>
-                <Route path="exchange" name="Exchange" component={Exchange}></Route>
+                <Route path="exchange" name="Exchange" component={ExchangeContainer}></Route>
             </Route>
         </Router>
     </Provider>, app);

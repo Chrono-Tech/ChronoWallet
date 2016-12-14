@@ -14,8 +14,10 @@ export default function reducer(state = init, action) {
             return state.merge(action.payload);
         }
         case 'SET_BALANCES': {
-            // if(state.get('balances')) return;
             return state.merge({balances: action.payload});
+        }
+        case 'SET_EXCHANGE_RATES': {
+            return state.merge({exchangeRates: action.payload});
         }
         case 'SEND': {
             let hashes;

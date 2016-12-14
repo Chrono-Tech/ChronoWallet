@@ -8,7 +8,6 @@ import {List} from "immutable";
 
 
 @connect((state) => ({
-    balances: state.get('balances'),
     txHashes: state.get('txHashes'),
     accounts: state.get('accounts'),
     currentAccount: state.get('currentAccount')
@@ -30,7 +29,7 @@ export default class Dashboard extends React.Component {
         if (store.getState().get('balances')) {
             this.setBalanceUpdater();
             this.setState({loading: false});
-        } else { //Wait while balance loading to store
+        } else { //Wait while balance is loading to store
             let unsubscribe = store.subscribe(() => {
                     if (store.getState().get('balances')) {
                         unsubscribe();
@@ -65,7 +64,6 @@ export default class Dashboard extends React.Component {
     }
 
     render() {
-        console.log("STORE", store.getState());
         let hashes = this.generateHashes();
         let balances = store.getState().get('balances') ? store.getState().get('balances') : new List();
         return ( this.state.loading ? <image src="../assets/cat1.gif"/>

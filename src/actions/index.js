@@ -9,10 +9,14 @@ export function configure() {
     let contracts = config.contractAddresses.map(address => {
         return Promise.promisifyAll((web3.eth.contract(config.contractABI)).at(address));
     });
+    let exchangeContracts = config.exchangeContract.map(address => {
+        return Promise.promisifyAll((web3.eth.contract(config.exchangeABI)).at(address));
+    });
     return {
         type: 'CONFIGURE',
         payload: {
-            contracts: contracts
+            contracts: contracts,
+            exchangeContracts: exchangeContracts
         }
     }
 }
@@ -45,17 +49,17 @@ export function setCurrentAccount(address) {
 export function getBalances() {
     let contracts = store.getState().get('contracts');
     let account = store.getState().get('currentAccount');
-    let days = moment().diff(moment([2016,11,1]),'days');
+    let days = moment().diff(moment([2016, 11, 1]), 'days');
     return Promise.map(contracts, (contract, index) => {
         return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account), contract.balanceOfAsync(account, 'pending')])
             .then(([symbol, balance, pending]) => Map({
                 symbol: web3.toAscii(symbol),
                 balance: balance.div(Math.pow(10, 8)).toNumber(),
                 pending: pending.minus(balance).div(Math.pow(10, 8)).toNumber(),
-                contract: contract,
                 fiatSymbol: config.fiat[index],
                 fiatRate: new BigNumber(config.fiatStartRate[index]).plus(new BigNumber(config.fiatRatio[index]).times(new BigNumber(days))),
-                fee: new BigNumber(config.fee[index])
+                fee: new BigNumber(config.fee[index]),
+                contract: contract,
             }))
     }).then(entries => {
         let balances = [];
@@ -68,19 +72,34 @@ export function getBalances() {
 }
 
 export function send(to, amount, symbol) {
-    // let value = new BigNumber(amount).times(Math.pow(10,8)).toString();
-    // let balances = store.getState().get('balances');
-    // let contract = balances.filter(balance => balance.get('symbol') === symbol).get(0).get('contract');
-    // contract.transferAsync(to, value).then(hash => {
-    //     store.dispatch({
-    //         type: 'SEND',
-    //         payload: hash
-    //     });
-    //     getBalances();
-    // });
+    let value = new BigNumber(amount).times(Math.pow(10, 8)).toString();
+    let balances = store.getState().get('balances');
+    let contract = balances.filter(balance => balance.get('symbol') === symbol).get(0).get('contract');
+    contract.transferAsync(to, value).then(hash => {
+        store.dispatch({
+            type: 'SEND',
+            payload: hash
+        });
+        getBalances();
+    });
+}
 
-    store.dispatch({
-        type: 'SEND',
-        payload: amount
+export function getExchangeRates() {
+    let exchangeContracts = store.getState().get('exchangeContracts');
+    let contracts = store.getState().get('contracts');
+    return Promise.map(exchangeContracts, (contract, index) => {
+        return Promise.all([contract.sellPriceAsync(), contract.buyPriceAsync(), contracts.get(index).symbolAsync()])
+            .then(([sellPrice, buyPrice, symbol]) => Map({
+                symbol: web3.toAscii(symbol),
+                sellPrice: web3.fromWei(sellPrice.toString()),
+                buyPrice: web3.fromWei(buyPrice.toString())
+            }))
+    }).then(entries => {
+        let exchangeRates = [];
+        entries.forEach(entry => exchangeRates.push(entry));
+        store.dispatch({
+            type: 'SET_EXCHANGE_RATES',
+            payload: exchangeRates
+        });
     });
 }

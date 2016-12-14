@@ -22,26 +22,23 @@ export default class Balances extends Component {
     }
 
     revertShowAddress() {
-        console.log("CHANGE!!!!!!");
         let revert = this.state.showDropdownAddress;
         this.setState({showDropdownAddress: !revert})
     }
 
     showDropdownAddress() {
-        if (this.props.accounts) {
-            return (
-                <div className="address-dropdown">
-                    {this.props.accounts.map(account => {
-                        if (account === this.props.currentAccount) {
-                            return;
-                        }
-                        return ( <p onClick={() => this.pickAddress(account)}
-                                    className="address-dropdown-entry"
-                                    key={account}>{account}</p>);
-                    })}
-                </div>
-            );
-        }
+        return (
+            <div className="address-dropdown">
+                {this.props.accounts.map(account => {
+                    if (account === this.props.currentAccount) {
+                        return;
+                    }
+                    return ( <p onClick={() => this.pickAddress(account)}
+                                className="address-dropdown-entry"
+                                key={account}>{account}</p>);
+                })}
+            </div>
+        );
     }
 
     pickAddress(address) {
@@ -54,7 +51,6 @@ export default class Balances extends Component {
 
     showBalances() {
         if (this.props.balances && this.props.balances.size > 0) {
-            console.log("In Balances,", this.props.balances.toArray()[0].get('balance'));
             let balanceInfo = [];
             this.props.balances.toArray().forEach((entry, index) => {
                 let aliasBalance = new BigNumber(entry.get('balance')).times(entry.get('fiatRate')).toFixed(2).replace(/\.?0+$/, "");
@@ -108,9 +104,7 @@ export default class Balances extends Component {
 
                 <div className="row">
                     <div className="balance-container">
-                        {this.props.balances ? balances :
-                            <image src="../assets/cat1.gif" className="cat"/>
-                        }
+                        {balances}
                     </div>
                 </div>
             </div>
