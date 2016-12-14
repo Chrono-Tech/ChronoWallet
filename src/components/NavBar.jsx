@@ -24,9 +24,9 @@ class NavBar extends React.Component {
                         <div className="nav-right">
                             <ul class="nav navbar-nav">
                                 <li><Link className="nav-option" to="/">Home</Link></li>
-                                <li><Link className="nav-option" to="developing">Exchange</Link></li>
-                                <li><Link className="nav-option" to="developing">Voting</Link></li>
-                                <li><Link className="nav-option" to="developing">Redemption</Link></li>
+                                <li><Link className="nav-option" to="exchange">Exchange</Link></li>
+                                <li><Link className="nav-option" to="voting">Voting</Link></li>
+                                <li><Link className="nav-option" to="redemption">Redemption</Link></li>
                             </ul>
                         </div>
                     </div>
