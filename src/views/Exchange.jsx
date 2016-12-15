@@ -8,45 +8,43 @@ export default class Exchange extends React.Component {
         super();
         this.state = {
             loading: true,
-            operation: 'Sell',
             amount: '', //Variable for input
         };
-        this.amountHandler = this.amountHandler.bind(this);
-        this.changeOperation = this.changeOperation.bind(this);
         this.generateRates = this.generateRates.bind(this);
-    }
-
-    amountHandler(text) {
-        return;
-    }
-
-    changeOperation() {
-        if (this.state.operation === 'Sell') {
-            this.setState({operation: 'Buy'})
-        } else {
-            this.setState({operation: 'Sell'})
-        }
     }
 
     generateRates() {
         return (
-            <div className="col-md-12">
+            <div>
                 {
                     this.props.exchangeRates.map((rate, index) => {
-                        return (<div className="row vertical-center">
-                            <div className="col-md-3">
+                        return (<div className=" col-md-12 exchange-rates-container">
+                            <div className="row">
                                 <p className="exchange-rates-currency">{rate.get('symbol')}</p>
-                                <div className="exchange-rates-separator-vertical"/>
                             </div>
-                            <div className="col-md-9">
-                                <div className="row">
-                                    <p className="exchange-rates-amount">Sell: {rate.get('sellPrice')}</p>
-                                </div>
-                                <div className="row">
-                                    <p className="exchange-rates-amount">Buy: {rate.get('buyPrice')}</p>
-                                </div>
+                            <div className="row">
+                                <p className="exchange-rates-text">
+                                    Sell for&nbsp;
+                                </p>
+                                <p className="exchange-rates-amount">
+                                    {rate.get('sellPrice')}
+                                </p>
+                                <p className="exchange-rates-text">
+                                    &nbsp;ETH
+                                </p>
                             </div>
-                            <div className="exchange-rates-separator-horizontal"/>
+                            <div className="row">
+                                <p className="exchange-rates-text">
+                                    Buy for&nbsp;
+                                </p>
+                                <p className="exchange-rates-amount">
+                                    {rate.get('buyPrice')}
+                                </p>
+                                <p className="exchange-rates-text">
+                                    &nbsp;ETH
+                                </p>
+                                <div className="exchange-rates-separator-horizontal"/>
+                            </div>
                         </div>);
                     })
                 }
@@ -74,10 +72,10 @@ export default class Exchange extends React.Component {
 
                             <div className="row">
                                 <button className="exchange-sell-buy-button"
-                                        onClick={this.changeOperation}
+                                        onClick={this.props.changeOperation}
                                 >
                                     <p className="exchange-sell-buy-button-text">
-                                        {this.state.operation}
+                                        {this.props.operation}
                                     </p>
                                     <div className="dropdown-symbol">
                                         <i class="fa fa-random" aria-hidden="true"/>
@@ -87,32 +85,40 @@ export default class Exchange extends React.Component {
                                        value={this.props.amount}
                                        type="text"
                                        placeholder="0.0"
-                                       onChange={input => this.amountHandler(input.target.value)}
+                                       onChange={input => this.props.amountHandler(input.target.value)}
                                 />
                                 <span style={{"position": "relative"}}>
                                     <p className="send-input-currency-label">
-                                        ETH
+                                        {this.props.inputCurrency}
                                     </p>
-                                    <button className="dropdown-button">
-                                        <div className="dropdown-symbol">
-                                            <i class="fa fa-arrow-down" aria-hidden="true"/>
-                                        </div>
-                                    </button>
+                                    {this.props.inputCurrencies ?
+                                        <button className="dropdown-button">
+                                            <div className="dropdown-symbol">
+                                                <i class="fa fa-arrow-down" aria-hidden="true"/>
+                                            </div>
+                                        </button>
+                                        : null
+                                    }
                                 </span>
                             </div>
 
                             <div className="row exchange-left-alias-margin">
                                 <h3>for</h3>
-                                <p className="exchange-amount-getting">100</p>
+                                <p className="exchange-amount-getting">
+                                    {this.props.result}
+                                </p>
                                 <span style={{"position": "relative"}}>
                                     <p className="send-input-currency-label">
-                                        LHAU
+                                        {this.props.outputCurrency}
                                     </p>
-                                    <button className="dropdown-button">
-                                        <div className="dropdown-symbol">
-                                            <i class="fa fa-arrow-down" aria-hidden="true"/>
-                                        </div>
-                                    </button>
+                                    {this.props.outputCurrencies ?
+                                        <button className="dropdown-button">
+                                            <div className="dropdown-symbol">
+                                                <i class="fa fa-arrow-down" aria-hidden="true"/>
+                                            </div>
+                                        </button>
+                                        : null
+                                    }
                                 </span>
                             </div>
                         </div>

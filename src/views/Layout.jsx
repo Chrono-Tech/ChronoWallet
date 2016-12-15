@@ -38,7 +38,7 @@ export default class Layout extends React.Component {
             </div>);
         } else if (this.state.loading) {
             return (
-                <image src="../assets/cat1.gif"/>
+                <image src="../assets/cat1.gif" className="main-loader-cat"/>
             );
         } else if (store.getState().get('accounts').size > 0) {
             return (

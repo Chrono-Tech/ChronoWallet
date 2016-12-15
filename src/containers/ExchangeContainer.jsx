@@ -16,30 +16,56 @@ export default class ExchangeContainer extends React.Component {
             loading: true,
             operation: 'Sell',
             amount: '', //Variable for input
+            result: 0,
+            exchangeCurrency: 'ETH',
+            exchangeCurrencies: [],
+            currentCurrencyBalance: 0, //BigNumber
+            currentCurrency: '',
+            currentCurrencies: []
         };
         this.amountHandler = this.amountHandler.bind(this);
         this.changeOperation = this.changeOperation.bind(this);
+        this.pickCurrency = this.pickCurrency.bind(this);
     }
 
     componentWillMount() {
-        //If balance already in the store
+        //If rates are already in the store
         if (store.getState().get('exchangeRates')) {
             this.setState({loading: false});
         } else {
             getExchangeRates();
-            //Wait while rates are loading to store
+            //Else wait while rates are loading to store
             let unsubscribe = store.subscribe(() => {
-                    if (store.getState().get('exchangeRates')) {
+                    if (store.getState().get('exchangeRates') && store.getState().get('balances')) {
                         unsubscribe();
                         this.setState({loading: false});
+                        this.pickCurrency();
                     }
                 }
             );
         }
     }
 
+    pickCurrency(currency) {
+        //TODO add exchange currencies in future here
+        let currentCurrency = currency;
+        let currentCurrencies = [];
+        let balances = store.getState().get('balances');
+        console.log('balancces', balances);
+        if (!currency) {
+            currentCurrency = balances.get(0).get('currency');
+        }
+        balances.forEach(balance => {
+            if (balance.get('currency') === currency) {
+                return;
+            }
+            currentCurrencies.push(balance.get('currency'));
+        });
+        this.setState({currentCurrency: currentCurrency, currentCurrencies: currentCurrencies});
+    }
+
     amountHandler(text) {
-        return;
+        this.setState({amount: text, result: parseFloat(text) * 0.5});
     }
 
     changeOperation() {
@@ -52,10 +78,35 @@ export default class ExchangeContainer extends React.Component {
 
     render() {
         console.log('loading in container', this.state.loading);
-        return ( this.state.loading ? null :
-            <Exchange currentAccount={this.props.currentAccount}
-                      exchangeRates={store.getState().get('exchangeRates')}
-            />
+        let inputCurrency;
+        let inputCurrencies;
+        let outputCurrency;
+        let outputCurrencies;
+        if (this.state.operation === 'Sell') {
+            inputCurrency = this.state.currentCurrency;
+            inputCurrencies = this.state.currentCurrencies;
+            outputCurrency = this.state.exchangeCurrency;
+            outputCurrencies = this.state.exchangeCurrencies;
+        } else {
+            inputCurrency = this.state.exchangeCurrency;
+            inputCurrencies = this.state.exchangeCurrencies;
+            outputCurrency = this.state.currentCurrency;
+            outputCurrencies = this.state.currentCurrencies;
+        }
+        return ( this.state.loading ?
+                <image src="../assets/cat1.gif" className="main-loader-cat"/> :
+                <Exchange currentAccount={this.props.currentAccount}
+                          operation={this.state.operation}
+                          changeOperation={this.changeOperation}
+                          exchangeRates={store.getState().get('exchangeRates')}
+                          amount={this.state.amount}
+                          amountHandler={this.amountHandler}
+                          inputCurrency={inputCurrency}
+                          inputCurrencies={inputCurrencies}
+                          outputCurrency={outputCurrency}
+                          outputCurrencies={outputCurrencies}
+                          result={this.state.result}
+                />
         );
     }
 

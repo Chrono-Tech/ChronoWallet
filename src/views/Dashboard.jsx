@@ -25,7 +25,7 @@ export default class Dashboard extends React.Component {
     }
 
     componentWillMount() {
-        //If balance already in the store
+        //If balance is already in the store
         if (store.getState().get('balances')) {
             this.setBalanceUpdater();
             this.setState({loading: false});
@@ -66,7 +66,7 @@ export default class Dashboard extends React.Component {
     render() {
         let hashes = this.generateHashes();
         let balances = store.getState().get('balances') ? store.getState().get('balances') : new List();
-        return ( this.state.loading ? <image src="../assets/cat1.gif"/>
+        return ( this.state.loading ? <image src="../assets/cat1.gif" className="main-loader-cat"/>
                 :
                 <div>
                     <div className="col-md-6">

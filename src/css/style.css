@@ -222,7 +222,7 @@ h3 {
 .send-amount-alias {
     color: #17579c;
     display: inline-block;
-    width:220px;
+    width: 220px;
     font-size: 17px;
     font-weight: 700;
     line-height: 30px;
@@ -450,7 +450,7 @@ h3 {
     margin: 0;
 }
 
-.exchange-amount-getting{
+.exchange-amount-getting {
     border: 2px solid #17579c;
     background-color: #17579c;
     color: #ffffff;
@@ -490,7 +490,7 @@ h3 {
     margin-left: 33px !important;
 }
 
-.exchange-recheck-button{
+.exchange-recheck-button {
     border: 2px solid #17579c;
     background-color: #17579c;
     color: #ffffff;
@@ -502,7 +502,7 @@ h3 {
     margin-top: 10px;
 }
 
-.exchange-recheck-button-text{
+.exchange-recheck-button-text {
     padding: 0;
     margin: 0 5px 0 0;
     display: inline-block;
@@ -513,7 +513,7 @@ h3 {
     align-items: center !important;
 }
 
-.exchange-rates-currency{
+.exchange-rates-currency {
     color: #17579c;
     font-weight: 700;
     font-size: 20px;
@@ -522,26 +522,45 @@ h3 {
     margin: 0;
 }
 
-.exchange-rates-amount{
+.exchange-rates-text {
     color: #17579c;
     font-size: 17px;
     display: inline-block;
     margin: 5px 0 0 0;
 }
 
-.exchange-rates-separator-vertical{
-    border: 1px solid #e2a864;
-    width: 0;
+
+.exchange-rates-amount {
+    color: #17579c;
+    font-size: 17px;
     display: inline-block;
-    height: 60px;
-    margin: 0 0 10px 10px;
+    font-weight: 700;
+    margin: 5px 0 0 0;
 }
 
-.exchange-rates-separator-horizontal{
+.exchange-rates-separator-horizontal {
     border: 1px solid #eeeeee;
+    margin: 0 1px 0 1px;
+    padding: 0;
+    width:400px;
 }
 
-.vertical-flex{
+.vertical-flex {
     display: flex !important;
-    justify-content: flex-end !important;
+    justify-content: center !important;
+}
+
+.exchange-rates-container{
+    border-left: 2px solid #e2a864;
+    background-color: #fff;
+    padding: 10px 0 10px 30px !important;
+    margin:0 !important;
+}
+
+.main-loader-cat{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20% 0 0 40%;
+    width: 300px;
 }
