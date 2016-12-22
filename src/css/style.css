@@ -292,6 +292,7 @@ h3 {
     width: 62px;
     border: 2px solid #17579c;
     border-top: 0;
+    z-index: 2;
 }
 
 .currency-dropdown-entry {

@@ -32,6 +32,7 @@ export default class ExchangeContainer extends React.Component {
         //If rates are already in the store
         if (store.getState().get('exchangeRates')) {
             this.setState({loading: false});
+            this.pickCurrency();
         } else {
             getExchangeRates();
             //Else wait while rates are loading to store
@@ -51,15 +52,14 @@ export default class ExchangeContainer extends React.Component {
         let currentCurrency = currency;
         let currentCurrencies = [];
         let balances = store.getState().get('balances');
-        console.log('balancces', balances);
         if (!currency) {
-            currentCurrency = balances.get(0).get('currency');
+            currentCurrency = balances.get(0).get('symbol');
         }
         balances.forEach(balance => {
-            if (balance.get('currency') === currency) {
+            if (balance.get('symbol') === currentCurrency) {
                 return;
             }
-            currentCurrencies.push(balance.get('currency'));
+            currentCurrencies.push(balance.get('symbol'));
         });
         this.setState({currentCurrency: currentCurrency, currentCurrencies: currentCurrencies});
     }
@@ -106,6 +106,7 @@ export default class ExchangeContainer extends React.Component {
                           outputCurrency={outputCurrency}
                           outputCurrencies={outputCurrencies}
                           result={this.state.result}
+                          pickCurrency={this.pickCurrency}
                 />
         );
     }
