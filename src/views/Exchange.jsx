@@ -166,7 +166,7 @@ export default class Exchange extends React.Component {
                             </div>
 
                             <div className="row">
-                                <button className="send-button" onClick={this.props.send}>Send</button>
+                                <button className="send-button" onClick={this.props.send}>{this.props.operation}</button>
                             </div>
                         </div>
 

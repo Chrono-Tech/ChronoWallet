@@ -77,7 +77,6 @@ export default class ExchangeContainer extends React.Component {
     }
 
     render() {
-        console.log('loading in container', this.state.loading);
         let inputCurrency;
         let inputCurrencies;
         let outputCurrency;

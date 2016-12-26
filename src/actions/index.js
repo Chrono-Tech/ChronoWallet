@@ -44,6 +44,32 @@ export function setCurrentAccount(address) {
         }
     });
     getBalances();
+    setUpTransferListeners(address);
+}
+
+function setUpTransferListeners(address) {
+    let contracts = store.getState().get('contracts');
+    let listeners = store.getState().get('listeners');
+    if (listeners) {
+        listeners.forEach(listener => listener.stopWatching());
+    }
+    return Promise.map(contracts, contract => contract.Transfer({to: address}, (err, result) => {
+        if (err) {
+            console.log('ParseTransferError', err);
+        } else {
+            parseTransfer(result);
+            getBalances();
+        }
+    })).then(listeners =>
+        store.dispatch({
+            type: 'SET_LISTENERS',
+            payload: listeners
+        })
+    );
+}
+
+function parseTransfer(transfer) {
+    console.log('ParseTransferResult', transfer);
 }
 
 export function getBalances() {

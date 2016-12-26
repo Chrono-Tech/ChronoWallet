@@ -42,30 +42,33 @@ export default class Balances extends Component {
     }
 
     pickAddress(address) {
-        setCurrentAccount(address);
         this.setState({
             showDropdownAddress: false
         });
-
+        setCurrentAccount(address);
     }
 
     showBalances() {
         if (this.props.balances && this.props.balances.size > 0) {
             let balanceInfo = [];
             this.props.balances.toArray().forEach((entry, index) => {
+                let pending = entry.get('pending').toFixed(8).replace(/\.?0+$/, "");
                 let aliasBalance = new BigNumber(entry.get('balance')).times(entry.get('fiatRate')).toFixed(2).replace(/\.?0+$/, "");
-                let aliasBalancePending = new BigNumber(entry.get('balance')).times(entry.get('fiatRate')).toFixed(2).replace(/\.?0+$/, "");
-
+                let aliasBalancePending = new BigNumber(pending).times(entry.get('fiatRate')).toFixed(2).replace(/\.?0+$/, "");
+                if(!pending.startsWith('-')){
+                    pending = '+ '.concat(pending);
+                    aliasBalancePending = '+ '.concat(aliasBalancePending);
+                }
                 balanceInfo.push(
                     <div key={index}>
-                        <p className="balance-value">{entry.get('balance')}&nbsp;</p>
-                        {entry.get('pending') === 0 ? null :
-                            <p className="balance-pending">{entry.get('pending')}&nbsp;</p>
+                        <p className="balance-value">{entry.get('balance').toFixed(8).replace(/\.?0+$/, "")}&nbsp;</p>
+                        {pending === '+ 0' ? null :
+                            <p className="balance-pending">{pending}&nbsp;</p>
                         }
                         <p className="balance-currency">{entry.get('symbol')}</p>
                         <div className="balance-vertical-separator"/>
                         <p className="balance-value">{aliasBalance}&nbsp;</p>
-                        {entry.get('pending') === 0 ? null :
+                        {entry.get('pending') === 0 || aliasBalancePending === '+ 0' || aliasBalancePending === '-0' ? null :
                             <p className="balance-pending">{aliasBalancePending}&nbsp;</p>
                         }
                         <p className="balance-currency">{entry.get('fiatSymbol')}</p>

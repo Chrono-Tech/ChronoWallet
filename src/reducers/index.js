@@ -19,6 +19,9 @@ export default function reducer(state = init, action) {
         case 'SET_EXCHANGE_RATES': {
             return state.merge({exchangeRates: action.payload});
         }
+        case 'SET_LISTENERS': {
+            return state.merge({listeners: action.payload});
+        }
         case 'SEND': {
             let hashes;
             if (state.get('txHashes')) {

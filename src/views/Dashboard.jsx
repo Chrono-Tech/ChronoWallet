@@ -18,7 +18,10 @@ export default class Dashboard extends React.Component {
         super();
         this.state = {
             loading: true,
-            intervalID: '',
+            intervalID: 0,
+            balances: new List(),
+            updater: () => {
+            }
         };
         this.generateHashes = this.generateHashes.bind(this);
         this.setBalanceUpdater = this.setBalanceUpdater.bind(this);
@@ -28,17 +31,25 @@ export default class Dashboard extends React.Component {
         //If balance is already in the store
         if (store.getState().get('balances')) {
             this.setBalanceUpdater();
-            this.setState({loading: false});
+            this.setState({loading: false, balances:store.getState().get('balances')});
         } else { //Wait while balance is loading to store
             let unsubscribe = store.subscribe(() => {
                     if (store.getState().get('balances')) {
                         unsubscribe();
                         this.setBalanceUpdater();
-                        this.setState({loading: false});
+                        this.setState({loading: false, balances:store.getState().get('balances')});
                     }
                 }
             );
         }
+        this.setState({
+            updater: store.subscribe(() => {
+                let balances = store.getState().get('balances');
+                if (balances) {
+                    this.setState({balances:balances});
+                }
+            })
+        });
     }
 
     setBalanceUpdater() {
@@ -47,6 +58,7 @@ export default class Dashboard extends React.Component {
 
     componentWillUnmount() {
         clearInterval(this.state.intervalID);
+        this.state.updater();
     }
 
     generateHashes() {
@@ -65,12 +77,11 @@ export default class Dashboard extends React.Component {
 
     render() {
         let hashes = this.generateHashes();
-        let balances = store.getState().get('balances') ? store.getState().get('balances') : new List();
         return ( this.state.loading ? <image src="../assets/cat1.gif" className="main-loader-cat"/>
                 :
                 <div>
                     <div className="col-md-6">
-                        <SendContainer balances={balances}/>
+                        <SendContainer balances={this.state.balances}/>
 
                         {this.props.txHashes ?
                             <div className="transparent-box">
@@ -91,7 +102,7 @@ export default class Dashboard extends React.Component {
                     <div className="col-md-6">
                         <Balances currentAccount={this.props.currentAccount}
                                   accounts={this.props.accounts}
-                                  balances={balances}
+                                  balances={this.state.balances}
                         />
                     </div>
                 </div>
