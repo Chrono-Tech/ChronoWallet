@@ -1,11 +1,11 @@
 module.exports = {
-    contractAddresses: ['0x44815af1a9deac7f2152a81de4143ef070440fd2', '0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f', '0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501'],
+    contractAddresses: ['0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501', '0x44815af1a9deac7f2152a81de4143ef070440fd2', '0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f'],
     //Order Matters!!!
-    fiat: ['EUR', 'AUD', 'USD', 'GBP'],
+    fiat: ['USD', 'EUR', 'AUD', 'GBP'],
     fee: [0.0015, 0.0015, 0.0015, 0.0015],
     //this is growth ratio per day
-    fiatRatio: ['0.00043835616', '0.00175342465', '0.00169863013', '0.00076712328'],
-    fiatStartRate: [11.30, 31.32, 25.27, 12.62],
+    fiatRatio: ['0.00169863013', '0.00043835616', '0.00175342465', '0.00076712328'],
+    fiatStartRate: [25.27, 11.30, 31.32, 12.62],
 
     //Contract abi is common for every contract
     contractABI: [{
@@ -13,6 +13,27 @@ module.exports = {
         "inputs": [],
         "name": "name",
         "outputs": [{"name": "", "type": "string"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_spender", "type": "address"}, {"name": "_value", "type": "uint256"}],
+        "name": "approve",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [],
+        "name": "commitUpgrade",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "getLatestVersion",
+        "outputs": [{"name": "", "type": "address"}],
         "payable": false,
         "type": "function"
     }, {
@@ -53,10 +74,10 @@ module.exports = {
         "payable": false,
         "type": "function"
     }, {
-        "constant": false,
+        "constant": true,
         "inputs": [],
-        "name": "claimContractOwnership",
-        "outputs": [{"name": "", "type": "bool"}],
+        "name": "decimals",
+        "outputs": [{"name": "", "type": "uint8"}],
         "payable": false,
         "type": "function"
     }, {
@@ -67,17 +88,24 @@ module.exports = {
         "payable": false,
         "type": "function"
     }, {
+        "constant": true,
+        "inputs": [],
+        "name": "getPendingVersionTimestamp",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "type": "function"
+    }, {
         "constant": false,
-        "inputs": [{"name": "_to", "type": "address"}],
-        "name": "changeContractOwnership",
+        "inputs": [],
+        "name": "purgeUpgrade",
         "outputs": [{"name": "", "type": "bool"}],
         "payable": false,
         "type": "function"
     }, {
-        "constant": true,
+        "constant": false,
         "inputs": [],
-        "name": "pendingContractOwner",
-        "outputs": [{"name": "", "type": "address"}],
+        "name": "optIn",
+        "outputs": [{"name": "", "type": "bool"}],
         "payable": false,
         "type": "function"
     }, {
@@ -95,8 +123,8 @@ module.exports = {
         "inputs": [{"name": "_to", "type": "address"}, {
             "name": "_value",
             "type": "uint256"
-        }, {"name": "_data", "type": "bytes"}],
-        "name": "forwardCall",
+        }, {"name": "_reference", "type": "string"}, {"name": "_sender", "type": "address"}],
+        "name": "__transferWithReference",
         "outputs": [{"name": "", "type": "bool"}],
         "payable": false,
         "type": "function"
@@ -108,10 +136,27 @@ module.exports = {
         "payable": false,
         "type": "function"
     }, {
+        "constant": false,
+        "inputs": [{"name": "_spender", "type": "address"}, {
+            "name": "_value",
+            "type": "uint256"
+        }, {"name": "_sender", "type": "address"}],
+        "name": "__approve",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
         "constant": true,
         "inputs": [],
         "name": "symbol",
         "outputs": [{"name": "", "type": "bytes32"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [],
+        "name": "getPendingVersion",
+        "outputs": [{"name": "", "type": "address"}],
         "payable": false,
         "type": "function"
     }, {
@@ -132,10 +177,17 @@ module.exports = {
         "payable": false,
         "type": "function"
     }, {
-        "constant": true,
+        "constant": false,
+        "inputs": [{"name": "_newVersion", "type": "address"}],
+        "name": "proposeUpgrade",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
         "inputs": [],
-        "name": "contractOwner",
-        "outputs": [{"name": "", "type": "address"}],
+        "name": "optOut",
+        "outputs": [{"name": "", "type": "bool"}],
         "payable": false,
         "type": "function"
     }, {
@@ -149,6 +201,33 @@ module.exports = {
         "payable": false,
         "type": "function"
     }, {
+        "constant": true,
+        "inputs": [{"name": "_from", "type": "address"}, {"name": "_spender", "type": "address"}],
+        "name": "allowance",
+        "outputs": [{"name": "", "type": "uint256"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": false,
+        "inputs": [{"name": "_from", "type": "address"}, {
+            "name": "_to",
+            "type": "address"
+        }, {"name": "_value", "type": "uint256"}, {
+            "name": "_reference",
+            "type": "string"
+        }, {"name": "_sender", "type": "address"}],
+        "name": "__transferFromWithReference",
+        "outputs": [{"name": "", "type": "bool"}],
+        "payable": false,
+        "type": "function"
+    }, {
+        "constant": true,
+        "inputs": [{"name": "_sender", "type": "address"}],
+        "name": "getVersionFor",
+        "outputs": [{"name": "", "type": "address"}],
+        "payable": false,
+        "type": "function"
+    }, {"payable": true, "type": "fallback"}, {
         "anonymous": false,
         "inputs": [{"indexed": true, "name": "from", "type": "address"}, {
             "indexed": true,
@@ -166,9 +245,14 @@ module.exports = {
         }, {"indexed": false, "name": "value", "type": "uint256"}],
         "name": "Approve",
         "type": "event"
+    }, {
+        "anonymous": false,
+        "inputs": [{"indexed": false, "name": "newVersion", "type": "address"}],
+        "name": "UpgradeProposal",
+        "type": "event"
     }],
 
-    exchangeContract: ['0xf087da190c89fbc7d540daaa2f1d6a68d338fef0', '0xf087da190c89fbc7d540daaa2f1d6a68d338fef0', '0xf087da190c89fbc7d540daaa2f1d6a68d338fef0'], //LHUS
+    exchangeContract: ['0xf087da190c89fbc7d540daaa2f1d6a68d338fef0'], //LHUS
     exchangeABI: [{
         "constant": false,
         "inputs": [{"name": "_buyPrice", "type": "uint256"}, {

@@ -1,5 +1,5 @@
 import React from "react";
-import {getExchangeRates} from "../actions";
+import {getExchangeRates, approve, sell, buy} from "../actions";
 
 
 export default class Exchange extends React.Component {
@@ -10,7 +10,6 @@ export default class Exchange extends React.Component {
             loading: true,
             showDropdownInputCurrency: false,
             showDropdownOutputCurrency: false,
-            amount: '', //Variable for input
         };
         this.generateRates = this.generateRates.bind(this);
         this.dontShowCurrency = this.dontShowCurrency.bind(this);
@@ -48,6 +47,22 @@ export default class Exchange extends React.Component {
                         return (<div className=" col-md-12 exchange-rates-container">
                             <div className="row">
                                 <p className="exchange-rates-currency">{rate.get('symbol')}</p>
+                                {this.props.balances.get(index).get('allowance') === '0' ?
+                                    <span>
+                                        <i class="fa fa-times" aria-hidden="true"/>
+                                        <p>Not allowed</p>
+                                    </span>
+                                    :
+                                    <span>
+                                        <i class="fa fa-check" aria-hidden="true"/>
+                                        <p>Allowed</p>
+                                    </span>
+                                }
+                                <button
+                                    onClick={() => approve(this.props.balances.get(index).get('symbol'), true)}
+                                >
+                                    Approve
+                                </button>
                             </div>
                             <div className="row">
                                 <p className="exchange-rates-text">
@@ -166,7 +181,8 @@ export default class Exchange extends React.Component {
                             </div>
 
                             <div className="row">
-                                <button className="send-button" onClick={this.props.send}>{this.props.operation}</button>
+                                <button className="send-button"
+                                        onClick={() => sell(this.props.amount, this.props.inputCurrency)}>{this.props.operation}</button>
                             </div>
                         </div>
 

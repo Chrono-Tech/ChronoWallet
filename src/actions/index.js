@@ -77,8 +77,10 @@ export function getBalances() {
     let account = store.getState().get('currentAccount');
     let days = moment().diff(moment([2016, 11, 1]), 'days');
     return Promise.map(contracts, (contract, index) => {
-        return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account), contract.balanceOfAsync(account, 'pending')])
-            .then(([symbol, balance, pending]) => Map({
+        return Promise.all([contract.symbolAsync(), contract.balanceOfAsync(account),
+            contract.balanceOfAsync(account, 'pending'),
+            contract.allowanceAsync(account, config.exchangeContract[index])])
+            .then(([symbol, balance, pending, allowance]) => Map({
                 symbol: web3.toAscii(symbol),
                 balance: balance.div(Math.pow(10, 8)).toNumber(),
                 pending: pending.minus(balance).div(Math.pow(10, 8)).toNumber(),
@@ -86,6 +88,7 @@ export function getBalances() {
                 fiatRate: new BigNumber(config.fiatStartRate[index]).plus(new BigNumber(config.fiatRatio[index]).times(new BigNumber(days))),
                 fee: new BigNumber(config.fee[index]),
                 contract: contract,
+                allowance: allowance.toString()
             }))
     }).then(entries => {
         let balances = [];
@@ -128,4 +131,45 @@ export function getExchangeRates() {
             payload: exchangeRates
         });
     });
+}
+
+export function approve(currency, approved) {
+    let balances = store.getState().get('balances');
+    let exchangeIndex = 0;
+    let asset = balances.filter((balance, index) => {
+        let isCurrency = balance.get('symbol') === currency;
+        if (isCurrency) {
+            exchangeIndex = index;
+        }
+        return isCurrency;
+    }).get(0);
+    if (approved) {
+        if(asset.get('allowance') === '0') {
+            return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(10))
+                .then(result => result ? getBalances() : null);
+        }
+    } else if(asset.get('allowance') !== '0'){
+        return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(0))
+            .then(result => result ? getBalances() : null);
+    }
+}
+
+export function sell(amount, currency) {
+    getExchangeRates();
+    let balances = store.getState().get('balances');
+    let index = balances.findIndex(balance => balance.get('symbol') === currency);
+    let exchangeContracts = store.getState().get('exchangeContracts');
+    let buyPrice = store.getState().get('exchangeRates').get(index).get('buyPrice');
+    return exchangeContracts.get(index).sellAsync(amount, buyPrice)
+        .then(result => result ? getBalances() : null);
+}
+
+export function buy(amount, currency) {
+    getExchangeRates();
+    let balances = store.getState().get('balances');
+    let index = balances.findIndex(balance => balance.get('symbol') === currency);
+    let exchangeContracts = store.getState().get('exchangeContracts');
+    let sellPrice = store.getState().get('exchangeRates').get(index).get('sellPrice');
+    return exchangeContracts.get(index).buyAsync(amount, sellPrice)
+        .then(result => result ? getBalances() : null);
 }

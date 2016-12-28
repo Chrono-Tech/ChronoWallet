@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {getExchangeRates} from '../actions/index';
 import Exchange from '../views/Exchange';
 import store from "../store";
+import {List} from "immutable";
 
 @connect((state) => ({
     accounts: state.get('accounts'),
@@ -13,6 +14,7 @@ export default class ExchangeContainer extends React.Component {
     constructor() {
         super();
         this.state = {
+            balances: new List(),
             loading: true,
             operation: 'Sell',
             amount: '', //Variable for input
@@ -31,7 +33,7 @@ export default class ExchangeContainer extends React.Component {
     componentWillMount() {
         //If rates are already in the store
         if (store.getState().get('exchangeRates')) {
-            this.setState({loading: false});
+            this.setState({loading: false, balances:store.getState().get('balances')});
             this.pickCurrency();
         } else {
             getExchangeRates();
@@ -39,13 +41,26 @@ export default class ExchangeContainer extends React.Component {
             let unsubscribe = store.subscribe(() => {
                     if (store.getState().get('exchangeRates') && store.getState().get('balances')) {
                         unsubscribe();
-                        this.setState({loading: false});
+                        this.setState({loading: false, balances:store.getState().get('balances')});
                         this.pickCurrency();
                     }
                 }
             );
         }
+        this.setState({
+            updater: store.subscribe(() => {
+                let balances = store.getState().get('balances');
+                if (balances) {
+                    this.setState({balances:balances});
+                }
+            })
+        });
     }
+
+    componentWillUnmount() {
+        this.state.updater();
+    }
+
 
     pickCurrency(currency) {
         //TODO add exchange currencies in future here
@@ -98,6 +113,7 @@ export default class ExchangeContainer extends React.Component {
                           operation={this.state.operation}
                           changeOperation={this.changeOperation}
                           exchangeRates={store.getState().get('exchangeRates')}
+                          balances={this.state.balances}
                           amount={this.state.amount}
                           amountHandler={this.amountHandler}
                           inputCurrency={inputCurrency}
