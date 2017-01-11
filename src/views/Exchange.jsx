@@ -31,8 +31,10 @@ export default class Exchange extends React.Component {
             <div className="currency-dropdown">
                 {currencies.map(currency =>
                     <p onClick={() => {
-                        this.props.pickCurrency(currency);
-                        this.dontShowCurrency(string)
+                        string === 'input' ?
+                            this.props.pickInputCurrency(currency) :
+                            this.props.pickOutputCurrency(currency);
+                        this.dontShowCurrency(string);
                     }}
                        className="currency-dropdown-entry">{currency}</p>)}
             </div>
@@ -66,7 +68,7 @@ export default class Exchange extends React.Component {
                             </div>
                             <div className="row">
                                 <p className="exchange-rates-text">
-                                    Sell for&nbsp;
+                                    Buy for&nbsp;
                                 </p>
                                 <p className="exchange-rates-amount">
                                     {rate.get('sellPrice')}
@@ -77,7 +79,7 @@ export default class Exchange extends React.Component {
                             </div>
                             <div className="row">
                                 <p className="exchange-rates-text">
-                                    Buy for&nbsp;
+                                    Sell for&nbsp;
                                 </p>
                                 <p className="exchange-rates-amount">
                                     {rate.get('buyPrice')}
@@ -113,16 +115,9 @@ export default class Exchange extends React.Component {
                             </div>
 
                             <div className="row">
-                                <button className="exchange-sell-buy-button"
-                                        onClick={this.props.changeOperation}
-                                >
-                                    <p className="exchange-sell-buy-button-text">
-                                        {this.props.operation}
+                                    <p className="send-label">
+                                        Exchange
                                     </p>
-                                    <div className="dropdown-symbol">
-                                        <i class="fa fa-random" aria-hidden="true"/>
-                                    </div>
-                                </button>
                                 <input className="exchange-amount-input"
                                        value={this.props.amount}
                                        type="text"
@@ -149,7 +144,13 @@ export default class Exchange extends React.Component {
                                         this.showDropdownCurrency(this.props.inputCurrencies, 'input')
                                         : null
                                     }
+                                    {this.props.amountInputError.length === 0 ? null :
+                                        <span className="send-input-error-sign">
+                                            <i class="fa fa-hand-o-left" aria-hidden="true"/>
+                                        </span>
+                                    }
                                 </span>
+                                <p className="send-input-error"> {this.props.amountInputError}</p>
                             </div>
 
                             <div className="row exchange-left-alias-margin">
@@ -182,7 +183,9 @@ export default class Exchange extends React.Component {
 
                             <div className="row">
                                 <button className="send-button"
-                                        onClick={() => sell(this.props.amount, this.props.inputCurrency)}>{this.props.operation}</button>
+                                        onClick={() => this.props.exchange()}>
+                                    Exchange
+                                </button>
                             </div>
                         </div>
 

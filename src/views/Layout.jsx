@@ -1,5 +1,6 @@
 import React from "react";
 import NavBar from "../components/NavBar";
+import Popup from "../components/Popup";
 import store from "../store";
 import {configure, getAccounts} from "../actions";
 
@@ -8,8 +9,11 @@ export default class Layout extends React.Component {
     constructor() {
         super();
         this.state = {
-            loading: true
+            loading: true,
+            popup: null
         };
+        this.showPopup = this.showPopup.bind(this);
+        this.closePopup = this.closePopup.bind(this);
     }
 
     componentWillMount() {
@@ -27,8 +31,24 @@ export default class Layout extends React.Component {
         }
     }
 
+    showPopup(header, text, buttontext, custom) {
+        if (custom) {
+            this.setState ({popup: <Popup closePopup={this.closePopup}
+                          custom={custom}/>})
+        } else {
+            this.setState({popup: <Popup closePopup={this.closePopup}
+                          header={header}
+                          text={text}
+                          buttonText={buttontext}/>})
+        }
+    }
+
+    closePopup() {
+        this.setState({popup: null});
+    }
+
     render() {
-        let accountsCount = store.getState().get('accounts') ? store.getState().get('accounts').size : null;
+        // let accountsCount = store.getState().get('accounts') ? store.getState().get('accounts').size : null;
         if (typeof web3 === 'undefined') {
             return (<div className="container transparent-box text-center vertical-align">
                 <p className="blue-big">Chrono</p>
@@ -42,9 +62,10 @@ export default class Layout extends React.Component {
             );
         } else if (store.getState().get('accounts').size > 0) {
             return (
-                <div className="container">
+                <div className="container" style={{"position": "relative"}}>
+                    {this.state.popup}
                     <NavBar/>
-                    {this.props.children}
+                    {React.cloneElement(this.props.children, {showPopup: this.showPopup})}
                 </div>
             );
         } else {

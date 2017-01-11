@@ -133,7 +133,7 @@ export function getExchangeRates() {
     });
 }
 
-export function approve(currency, approved) {
+export function approve(currency, approveWanted) {
     let balances = store.getState().get('balances');
     let exchangeIndex = 0;
     let asset = balances.filter((balance, index) => {
@@ -143,7 +143,7 @@ export function approve(currency, approved) {
         }
         return isCurrency;
     }).get(0);
-    if (approved) {
+    if (approveWanted) {
         if(asset.get('allowance') === '0') {
             return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(10))
                 .then(result => result ? getBalances() : null);
@@ -154,7 +154,7 @@ export function approve(currency, approved) {
     }
 }
 
-export function sell(amount, currency) {
+export function sell(amount, currency) { //amount of tokens and token symbol
     getExchangeRates();
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
@@ -164,7 +164,7 @@ export function sell(amount, currency) {
         .then(result => result ? getBalances() : null);
 }
 
-export function buy(amount, currency) {
+export function buy(amount, currency) { //amount of tokens and token symbol
     getExchangeRates();
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
