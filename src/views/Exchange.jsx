@@ -1,5 +1,6 @@
 import React from "react";
 import {getExchangeRates, approve, sell, buy} from "../actions";
+import BigNumber from "bignumber.js";
 
 
 export default class Exchange extends React.Component {
@@ -12,11 +13,11 @@ export default class Exchange extends React.Component {
             showDropdownOutputCurrency: false,
         };
         this.generateRates = this.generateRates.bind(this);
-        this.dontShowCurrency = this.dontShowCurrency.bind(this);
+        this.showCurrencySwitcher = this.showCurrencySwitcher.bind(this);
         this.showDropdownCurrency = this.showDropdownCurrency.bind(this);
     }
 
-    dontShowCurrency(string) {
+    showCurrencySwitcher(string) {
         if (string === 'input') {
             let revert = this.state.showDropdownInputCurrency;
             this.setState({showDropdownInputCurrency: !revert})
@@ -34,7 +35,7 @@ export default class Exchange extends React.Component {
                         string === 'input' ?
                             this.props.pickInputCurrency(currency) :
                             this.props.pickOutputCurrency(currency);
-                        this.dontShowCurrency(string);
+                        this.showCurrencySwitcher(string);
                     }}
                        className="currency-dropdown-entry">{currency}</p>)}
             </div>
@@ -47,31 +48,39 @@ export default class Exchange extends React.Component {
                 {
                     this.props.exchangeRates.map((rate, index) => {
                         return (<div className=" col-md-12 exchange-rates-container">
-                            <div className="row">
+                            <div className="row flex-one-line">
                                 <p className="exchange-rates-currency">{rate.get('symbol')}</p>
                                 {this.props.balances.get(index).get('allowance') === '0' ?
-                                    <span>
-                                        <i class="fa fa-times" aria-hidden="true"/>
-                                        <p>Not allowed</p>
+                                    <span className="exchange-currency-header-container">
+                                        <div className="exchange-cross">
+                                            <i class="fa fa-times" aria-hidden="true"/>
+                                        </div>
+                                        <button className="exchange-allow"
+                                                onClick={() => approve(this.props.balances.get(index).get('symbol'), true)}
+                                        >
+                                            Allow
+                                        </button>
                                     </span>
                                     :
-                                    <span>
-                                        <i class="fa fa-check" aria-hidden="true"/>
-                                        <p>Allowed</p>
-                                    </span>
+                                    <div className="exchange-currency-header-container">
+                                        <div className="exchange-tick">
+                                            <i class="fa fa-check" aria-hidden="true"/>
+                                        </div>
+                                        <button className="exchange-disallow"
+                                                onClick={() => approve(this.props.balances.get(index).get('symbol'), false)}
+                                        >
+                                            Disallow
+                                        </button>
+                                    </div>
                                 }
-                                <button
-                                    onClick={() => approve(this.props.balances.get(index).get('symbol'), true)}
-                                >
-                                    Approve
-                                </button>
+
                             </div>
                             <div className="row">
                                 <p className="exchange-rates-text">
                                     Buy for&nbsp;
                                 </p>
                                 <p className="exchange-rates-amount">
-                                    {rate.get('sellPrice')}
+                                    {rate.get('sellPrice').toFixed(18).replace(/\.?0+$/, "")}
                                 </p>
                                 <p className="exchange-rates-text">
                                     &nbsp;ETH
@@ -82,7 +91,7 @@ export default class Exchange extends React.Component {
                                     Sell for&nbsp;
                                 </p>
                                 <p className="exchange-rates-amount">
-                                    {rate.get('buyPrice')}
+                                    {rate.get('buyPrice').toFixed(18).replace(/\.?0+$/, "")}
                                 </p>
                                 <p className="exchange-rates-text">
                                     &nbsp;ETH
@@ -95,6 +104,7 @@ export default class Exchange extends React.Component {
             </div>
         );
     }
+
 
     render() {
         let rates = this.generateRates();
@@ -115,9 +125,9 @@ export default class Exchange extends React.Component {
                             </div>
 
                             <div className="row">
-                                    <p className="send-label">
-                                        Exchange
-                                    </p>
+                                <p className="send-label">
+                                    Exchange
+                                </p>
                                 <input className="exchange-amount-input"
                                        value={this.props.amount}
                                        type="text"
@@ -126,13 +136,13 @@ export default class Exchange extends React.Component {
                                 />
                                 <span style={{"position": "relative"}}>
                                     <p className="send-input-currency-label"
-                                       onClick={() => this.dontShowCurrency('input')}
+                                       onClick={() => this.showCurrencySwitcher('input')}
                                     >
                                         {this.props.inputCurrency}
                                     </p>
                                     {this.props.inputCurrencies.length !== 0 ?
                                         <button className="dropdown-button"
-                                                onClick={() => this.dontShowCurrency('input')}
+                                                onClick={() => this.showCurrencySwitcher('input')}
                                         >
                                             <div className="dropdown-symbol">
                                                 <i class="fa fa-arrow-down" aria-hidden="true"/>
@@ -156,7 +166,7 @@ export default class Exchange extends React.Component {
                             <div className="row exchange-left-alias-margin">
                                 <h3>for</h3>
                                 <p className="exchange-amount-getting"
-                                   onClick={() => this.dontShowCurrency('output')}
+                                   onClick={() => this.showCurrencySwitcher('output')}
                                 >
                                     {this.props.result}
                                 </p>
@@ -166,7 +176,7 @@ export default class Exchange extends React.Component {
                                     </p>
                                     {this.props.outputCurrencies.length !== 0 ?
                                         <button className="dropdown-button"
-                                                onClick={() => this.dontShowCurrency('output')}
+                                                onClick={() => this.showCurrencySwitcher('output')}
                                         >
                                             <div className="dropdown-symbol">
                                                 <i class="fa fa-arrow-down" aria-hidden="true"/>
@@ -193,15 +203,16 @@ export default class Exchange extends React.Component {
                             <div className="row">
                                 <p className="exchange-label">Current Rates</p>
                                 <button className="exchange-recheck-button"
-                                        onClick={() => getExchangeRates()}
+                                        onClick={() => this.props.setLoadingRates()}
                                 >
-                                    <p className="exchange-recheck-button-text">
-                                        Recheck rates
-                                    </p>
                                     <div className="dropdown-symbol">
                                         <i class="fa fa-retweet" aria-hidden="true"/>
                                     </div>
                                 </button>
+                                {this.props.loadingRates ?
+                                    <p className="exchange-loader">Loading...</p>
+                                    : null
+                                }
                             </div>
 
                             <div className="row">

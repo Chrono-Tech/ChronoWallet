@@ -43,8 +43,20 @@ export function setCurrentAccount(address) {
             currentAccount: address
         }
     });
+    getEthBalance();
     getBalances();
     setUpTransferListeners(address);
+}
+
+export function getEthBalance() {
+    web3.eth.getBalance(web3.eth.defaultAccount, (err, res) => {
+        store.dispatch({
+            type: 'SET_ETHER_BALANCE',
+            payload: {
+                ethBalance: web3.fromWei(res.toString())
+            }
+        });
+    });
 }
 
 function setUpTransferListeners(address) {
@@ -57,7 +69,6 @@ function setUpTransferListeners(address) {
         if (err) {
             console.log('ParseTransferError', err);
         } else {
-            parseTransfer(result);
             getBalances();
         }
     })).then(listeners =>
@@ -66,10 +77,6 @@ function setUpTransferListeners(address) {
             payload: listeners
         })
     );
-}
-
-function parseTransfer(transfer) {
-    console.log('ParseTransferResult', transfer);
 }
 
 export function getBalances() {
@@ -120,8 +127,8 @@ export function getExchangeRates() {
         return Promise.all([contract.sellPriceAsync(), contract.buyPriceAsync(), contracts.get(index).symbolAsync()])
             .then(([sellPrice, buyPrice, symbol]) => Map({
                 symbol: web3.toAscii(symbol),
-                sellPrice: web3.fromWei(sellPrice.toString()),
-                buyPrice: web3.fromWei(buyPrice.toString())
+                sellPrice: new BigNumber(web3.fromWei(sellPrice.toString())).times(Math.pow(10, 8)),
+                buyPrice: new BigNumber(web3.fromWei(buyPrice.toString())).times(Math.pow(10, 8))
             }))
     }).then(entries => {
         let exchangeRates = [];
@@ -144,32 +151,37 @@ export function approve(currency, approveWanted) {
         return isCurrency;
     }).get(0);
     if (approveWanted) {
-        if(asset.get('allowance') === '0') {
-            return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(10))
+        if (asset.get('allowance') === '0') {
+            return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex],
+                new BigNumber('0xf000000000000000000000000000000000000000000000000000000000000000'))
                 .then(result => result ? getBalances() : null);
         }
-    } else if(asset.get('allowance') !== '0'){
+    } else if (asset.get('allowance') !== '0') {
         return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(0))
             .then(result => result ? getBalances() : null);
     }
 }
 
+//Sell my tokens for ether
 export function sell(amount, currency) { //amount of tokens and token symbol
+    amount = new BigNumber(amount).times(Math.pow(10, 8)).toString();
     getExchangeRates();
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
-    let buyPrice = store.getState().get('exchangeRates').get(index).get('buyPrice');
+    let buyPrice = web3.toWei(store.getState().get('exchangeRates').get(index).get('buyPrice'), 'ether');
     return exchangeContracts.get(index).sellAsync(amount, buyPrice)
-        .then(result => result ? getBalances() : null);
+        .then(result => result ? console.log(result) : null);
 }
 
+//Buy tokens for my ether
 export function buy(amount, currency) { //amount of tokens and token symbol
+    amount = new BigNumber(amount).times(Math.pow(10, 8));
     getExchangeRates();
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
-    let sellPrice = store.getState().get('exchangeRates').get(index).get('sellPrice');
-    return exchangeContracts.get(index).buyAsync(amount, sellPrice)
-        .then(result => result ? getBalances() : null);
+    let sellPrice = web3.toWei(store.getState().get('exchangeRates').get(index).get('sellPrice'), 'ether');
+    return exchangeContracts.get(index).buyAsync(amount.toString(), sellPrice, {value: new BigNumber(sellPrice).times(amount)})
+        .then(result => result ? console.log(result) : null);
 }

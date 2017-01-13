@@ -34,7 +34,8 @@ export default class Layout extends React.Component {
     showPopup(header, text, buttontext, custom) {
         if (custom) {
             this.setState ({popup: <Popup closePopup={this.closePopup}
-                          custom={custom}/>})
+                                          header={header}
+                                          custom={custom}/>})
         } else {
             this.setState({popup: <Popup closePopup={this.closePopup}
                           header={header}
