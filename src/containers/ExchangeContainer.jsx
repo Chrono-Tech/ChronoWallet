@@ -206,7 +206,7 @@ export default class ExchangeContainer extends React.Component {
         } else if (this.state.inputCurrency !== 'ETH') {
             let approved = this.state.balances
                     .find(balance => balance.get('symbol') === this.state.inputCurrency)
-                    .get('allowance') === 0;
+                    .get('allowance') !== 0;
             if(!approved){
                 let customPopup = <div>
                     <p className="popup-text">You need to allow exchange contract to withdraw&nbsp;
@@ -233,6 +233,11 @@ export default class ExchangeContainer extends React.Component {
         } else {
             buy(this.state.result, this.state.outputCurrency);
         }
+        this.setState({
+            amount: '',
+            result: 0,
+            amountInputError: ''
+        });
     }
 
     render() {

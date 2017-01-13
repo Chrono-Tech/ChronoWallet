@@ -169,7 +169,7 @@ export function sell(amount, currency) { //amount of tokens and token symbol
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
-    let buyPrice = web3.toWei(store.getState().get('exchangeRates').get(index).get('buyPrice'), 'ether');
+    let buyPrice = web3.toWei(new BigNumber(store.getState().get('exchangeRates').get(index).get('buyPrice')).div(Math.pow(10,8)).toString(), 'ether');
     return exchangeContracts.get(index).sellAsync(amount, buyPrice)
         .then(result => result ? console.log(result) : null);
 }
@@ -181,7 +181,7 @@ export function buy(amount, currency) { //amount of tokens and token symbol
     let balances = store.getState().get('balances');
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
-    let sellPrice = web3.toWei(store.getState().get('exchangeRates').get(index).get('sellPrice'), 'ether');
+    let sellPrice = web3.toWei(new BigNumber(store.getState().get('exchangeRates').get(index).get('sellPrice')).div(Math.pow(10,8)).toString(), 'ether');
     return exchangeContracts.get(index).buyAsync(amount.toString(), sellPrice, {value: new BigNumber(sellPrice).times(amount)})
         .then(result => result ? console.log(result) : null);
 }
