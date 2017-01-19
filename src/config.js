@@ -1,4 +1,7 @@
 module.exports = {
+    approve_gas:150000, //set on every transaction
+    send_gas:200000, //set on every transaction
+    exchange_gas:250000, //set on every transaction
     contractAddresses: ['0x99f7c94e7d2ef4ff5efc66d56522a8b7e4284501', '0x44815af1a9deac7f2152a81de4143ef070440fd2', '0x0326ac5b3659aa5aecde5808931a59a6d8f6f51f'],
     //Order Matters!!!
     fiat: ['USD', 'EUR', 'AUD', 'GBP'],

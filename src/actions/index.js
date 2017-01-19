@@ -111,7 +111,7 @@ export function send(to, amount, symbol) {
     let value = new BigNumber(amount).times(Math.pow(10, 8)).toString();
     let balances = store.getState().get('balances');
     let contract = balances.filter(balance => balance.get('symbol') === symbol).get(0).get('contract');
-    contract.transferAsync(to, value).then(hash => {
+    contract.transferAsync(to, value, {gas:config.send_gas}).then(hash => {
         store.dispatch({
             type: 'SEND',
             payload: hash
@@ -153,11 +153,11 @@ export function approve(currency, approveWanted) {
     if (approveWanted) {
         if (asset.get('allowance') === '0') {
             return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex],
-                new BigNumber('0xf000000000000000000000000000000000000000000000000000000000000000'))
+                new BigNumber('0xf000000000000000000000000000000000000000000000000000000000000000'), {gas:config.approve_gas})
                 .then(result => result ? getBalances() : null);
         }
     } else if (asset.get('allowance') !== '0') {
-        return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(0))
+        return asset.get('contract').approveAsync(config.exchangeContract[exchangeIndex], new BigNumber(0), {gas:config.approve_gas})
             .then(result => result ? getBalances() : null);
     }
 }
@@ -170,7 +170,7 @@ export function sell(amount, currency) { //amount of tokens and token symbol
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
     let buyPrice = web3.toWei(new BigNumber(store.getState().get('exchangeRates').get(index).get('buyPrice')).div(Math.pow(10,8)).toString(), 'ether');
-    return exchangeContracts.get(index).sellAsync(amount, buyPrice)
+    return exchangeContracts.get(index).sellAsync(amount, buyPrice, {gas:config.exchange_gas})
         .then(result => result ? console.log(result) : null);
 }
 
@@ -182,6 +182,6 @@ export function buy(amount, currency) { //amount of tokens and token symbol
     let index = balances.findIndex(balance => balance.get('symbol') === currency);
     let exchangeContracts = store.getState().get('exchangeContracts');
     let sellPrice = web3.toWei(new BigNumber(store.getState().get('exchangeRates').get(index).get('sellPrice')).div(Math.pow(10,8)).toString(), 'ether');
-    return exchangeContracts.get(index).buyAsync(amount.toString(), sellPrice, {value: new BigNumber(sellPrice).times(amount)})
+    return exchangeContracts.get(index).buyAsync(amount.toString(), sellPrice, {value: new BigNumber(sellPrice).times(amount), gas:config.exchange_gas})
         .then(result => result ? console.log(result) : null);
 }
